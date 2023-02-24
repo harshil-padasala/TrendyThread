@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -17,8 +18,8 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/")
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
+    @PostMapping
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
         UserDto savedUserDto = userService.createUser(userDto);
         return new ResponseEntity<>(savedUserDto, HttpStatus.CREATED);
     }
@@ -29,14 +30,14 @@ public class UserController {
         return ResponseEntity.ok(userDto);
     }
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<List<UserDto>> getAllUsers() {
         List<UserDto> userDtoList = userService.getAllUsers();
         return ResponseEntity.ok(userDtoList);
     }
 
     @PutMapping("/{user-id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable("user-id") Integer userId, @RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> updateUser(@PathVariable("user-id") Integer userId, @Valid @RequestBody UserDto userDto) {
         UserDto updatedUserDto = userService.updateUser(userDto, userId);
         return ResponseEntity.ok(updatedUserDto);
     }
