@@ -37,8 +37,10 @@ public class PostController {
     @GetMapping
     public ResponseEntity<PostResponse> getAllPost(
             @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize) {
-        PostResponse postResponse = this.postService.getAllPosts(pageNumber, pageSize);
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "postID", required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "true", required = false) boolean isAsc) {
+        PostResponse postResponse = this.postService.getAllPosts(pageNumber, pageSize, sortBy, isAsc);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 
@@ -46,8 +48,10 @@ public class PostController {
     @GetMapping("/category/{categoryID}")
     public ResponseEntity<PostResponse> getPostsByCategory(@PathVariable Integer categoryID,
                                                            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
-                                                           @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize) {
-        PostResponse postResponse = this.postService.getAllPostsByCategory(categoryID, pageNumber, pageSize);
+                                                           @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize,
+                                                           @RequestParam(value = "sortBy", defaultValue = "postID", required = false) String sortBy,
+                                                           @RequestParam(value = "sortDir", defaultValue = "true", required = false) boolean isAsc) {
+        PostResponse postResponse = this.postService.getAllPostsByCategory(categoryID, pageNumber, pageSize, sortBy, isAsc);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 
@@ -55,8 +59,10 @@ public class PostController {
     @GetMapping("/user/{userID}")
     public ResponseEntity<PostResponse> getPostsByUser(@PathVariable Integer userID,
                                                        @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
-                                                       @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize) {
-        PostResponse postResponse = this.postService.getAllPostsByUser(userID, pageNumber, pageSize);
+                                                       @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize,
+                                                       @RequestParam(value = "sortBy", defaultValue = "postID", required = false) String sortBy,
+                                                       @RequestParam(value = "sortDir", defaultValue = "true", required = false) boolean isAsc) {
+        PostResponse postResponse = this.postService.getAllPostsByUser(userID, pageNumber, pageSize, sortBy, isAsc);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 

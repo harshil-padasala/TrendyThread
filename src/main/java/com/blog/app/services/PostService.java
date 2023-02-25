@@ -13,13 +13,13 @@ public interface PostService {
     PostDto getPostByID(Integer PostID);
 
     // Get Mapping
-    PostResponse getAllPosts(Integer pageNumber, Integer pageSize);
+    PostResponse getAllPosts(Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc);
 
     // Get Mapping By All Category
-    PostResponse getAllPostsByCategory(Integer categoryID, Integer pageNumber, Integer pageSize);
+    PostResponse getAllPostsByCategory(Integer categoryID, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc);
 
     // Get Mapping By All User
-    PostResponse getAllPostsByUser(Integer userID, Integer pageNumber, Integer pageSize);
+    PostResponse getAllPostsByUser(Integer userID, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc);
 
     // Post Mapping
     PostDto createPost(PostDto postDto, Integer userId, Integer postId);

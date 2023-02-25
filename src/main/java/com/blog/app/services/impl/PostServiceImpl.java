@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -43,8 +44,9 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostResponse getAllPosts(Integer pageNumber, Integer pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+    public PostResponse getAllPosts(Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc) {
+        Pageable pageable = isAsc ? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()) :
+                PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
 
         Page<Post> pagePostList = this.postRepository.findAll(pageable);
 //        List<Post> postList = pagePostList.getContent();
@@ -54,8 +56,10 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostResponse getAllPostsByCategory(Integer categoryID, Integer pageNumber, Integer pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+    public PostResponse getAllPostsByCategory(Integer categoryID, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc) {
+
+        Pageable pageable = isAsc ? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()) :
+                PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
 
         Category category = categoryRepository.findById(categoryID)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "Category ID", categoryID));
@@ -68,9 +72,10 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostResponse getAllPostsByUser(Integer userID, Integer pageNumber, Integer pageSize) {
+    public PostResponse getAllPostsByUser(Integer userID, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc) {
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Pageable pageable = isAsc ? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()) :
+                PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
 
         User user = this.userRepository.findById(userID)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "User Id", userID));
