@@ -29,4 +29,7 @@ public interface PostService {
 
     // Delete Mapping
     void deletePostByID(Integer postID);
+
+    // search method
+    PostResponse searchPost(String keyword, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc);
 }

@@ -19,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class PostServiceImpl implements PostService {
@@ -126,6 +127,15 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "Post Id", postID));
 
         this.postRepository.deleteById(postID);
+    }
+
+    @Override
+    public PostResponse searchPost(String keyword, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc) {
+        Pageable pageable = isAsc ? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()) :
+                PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
+        Page<Post> postList = this.postRepository.findByTitleContaining(keyword, pageable);
+
+        return this.generatePostAsPageResponse(postList);
     }
 
     private PostResponse generatePostAsPageResponse(Page<Post> posts) {

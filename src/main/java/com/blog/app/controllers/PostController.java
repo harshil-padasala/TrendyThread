@@ -1,5 +1,6 @@
 package com.blog.app.controllers;
 
+import com.blog.app.config.AppConstants;
 import com.blog.app.payloads.ApiResponse;
 import com.blog.app.payloads.PostDto;
 import com.blog.app.payloads.PostResponse;
@@ -36,10 +37,10 @@ public class PostController {
     // GET Mapping - Get All
     @GetMapping
     public ResponseEntity<PostResponse> getAllPost(
-            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
-            @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize,
-            @RequestParam(value = "sortBy", defaultValue = "postID", required = false) String sortBy,
-            @RequestParam(value = "sortDir", defaultValue = "true", required = false) boolean isAsc) {
+            @RequestParam(value = "pageNumber", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIR, required = false) boolean isAsc) {
         PostResponse postResponse = this.postService.getAllPosts(pageNumber, pageSize, sortBy, isAsc);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
@@ -47,10 +48,10 @@ public class PostController {
     // GET Mapping - Get by Category
     @GetMapping("/category/{categoryID}")
     public ResponseEntity<PostResponse> getPostsByCategory(@PathVariable Integer categoryID,
-                                                           @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
-                                                           @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize,
-                                                           @RequestParam(value = "sortBy", defaultValue = "postID", required = false) String sortBy,
-                                                           @RequestParam(value = "sortDir", defaultValue = "true", required = false) boolean isAsc) {
+                                                           @RequestParam(value = "pageNumber", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) Integer pageNumber,
+                                                           @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) Integer pageSize,
+                                                           @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+                                                           @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIR, required = false) boolean isAsc) {
         PostResponse postResponse = this.postService.getAllPostsByCategory(categoryID, pageNumber, pageSize, sortBy, isAsc);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
@@ -58,10 +59,10 @@ public class PostController {
     // GET Mapping - Get by User
     @GetMapping("/user/{userID}")
     public ResponseEntity<PostResponse> getPostsByUser(@PathVariable Integer userID,
-                                                       @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
-                                                       @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize,
-                                                       @RequestParam(value = "sortBy", defaultValue = "postID", required = false) String sortBy,
-                                                       @RequestParam(value = "sortDir", defaultValue = "true", required = false) boolean isAsc) {
+                                                       @RequestParam(value = "pageNumber", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) Integer pageNumber,
+                                                       @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) Integer pageSize,
+                                                       @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+                                                       @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIR, required = false) boolean isAsc) {
         PostResponse postResponse = this.postService.getAllPostsByUser(userID, pageNumber, pageSize, sortBy, isAsc);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
@@ -80,6 +81,17 @@ public class PostController {
         return new ResponseEntity<>(
                 new ApiResponse("Post has been deleted!!", true),
                 HttpStatus.OK);
+    }
+
+    // GET Mapping for Search
+    @GetMapping("/search/{keyword}")
+    public ResponseEntity<PostResponse> searchPosts(@PathVariable String keyword,
+                                                    @RequestParam(value = "pageNumber", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) Integer pageNumber,
+                                                    @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) Integer pageSize,
+                                                    @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+                                                    @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIR, required = false) boolean isAsc) {
+        PostResponse postResponse = this.postService.searchPost(keyword, pageNumber, pageSize, sortBy, isAsc);
+        return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 
 }
