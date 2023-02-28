@@ -4,13 +4,17 @@ import com.blog.app.config.AppConstants;
 import com.blog.app.payloads.ApiResponse;
 import com.blog.app.payloads.PostDto;
 import com.blog.app.payloads.PostResponse;
+import com.blog.app.services.FileService;
 import com.blog.app.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -18,6 +22,12 @@ public class PostController {
 
     @Autowired
     private PostService postService;
+
+    @Autowired
+    private FileService fileService;
+
+    @Value("${project.image}")
+    private String path;
 
     // POST Mapping - Create Post
     @PostMapping("/users/{userID}/category/{categoryID}")
@@ -92,6 +102,20 @@ public class PostController {
                                                     @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIR, required = false) boolean isAsc) {
         PostResponse postResponse = this.postService.searchPost(keyword, pageNumber, pageSize, sortBy, isAsc);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
+    }
+
+    // Post image upload
+    @PostMapping("/image/upload/{postId}")
+    public ResponseEntity<PostDto> uploadPostImage(
+            @RequestParam("image") MultipartFile image,
+            @PathVariable Integer postId) throws IOException {
+
+        PostDto postDto = this.postService.getPostByID(postId);
+        String fileName = this.fileService.uploadImage(path, image);
+        postDto.setImageName(fileName);
+
+        PostDto updatedPostDto = this.postService.updatePostById(postId, postDto);
+        return new ResponseEntity<>(updatedPostDto, HttpStatus.OK);
     }
 
 }
