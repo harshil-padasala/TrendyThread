@@ -1,8 +1,5 @@
 # Spring Boot Blog REST API
 
-![GitHub repo size](https://img.shields.io/github/repo-size/yourusername/spring-boot-blog-api)
-
-
 A versatile RESTful API for managing a comprehensive blog application built using Spring Boot.
 
 ## Table of Contents
@@ -25,8 +22,6 @@ This project serves as the backend for a feature-rich blog application, providin
 - **Categories**: Manage blog post categories, including create, retrieve, update, and delete operations.
 - **Users**: Handle user management, authentication, and authorization.
 - **Posts**: Create, retrieve, update, and delete blog posts within specific categories.
-- **User Authentication**: Secure endpoints using authentication.
-- **Role-Based Access Control (RBAC)**: Enforce role-based permissions for users.
 
 ## Prerequisites
 
@@ -44,4 +39,16 @@ To get started with this project, follow these steps:
 
    ```bash
    git clone https://github.com/yourusername/spring-boot-blog-api.git
+
+
+## Endpoints
+
+### Categories
+
+- **GET /api/category**: Retrieve a list of all blog categories.
+- **GET /api/category/{id}**: Retrieve a specific category by ID.
+- **POST /api/category**: Create a new blog category.
+- **PUT /api/category/{id}**: Update an existing blog category.
+- **DELETE /api/category/{id}**: Delete a blog category.
+
 
