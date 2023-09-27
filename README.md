@@ -1,9 +1,7 @@
 # Spring Boot Blog REST API
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/yourusername/spring-boot-blog-api)
-![GitHub contributors](https://img.shields.io/github/contributors/yourusername/spring-boot-blog-api)
-![GitHub stars](https://img.shields.io/github/stars/yourusername/spring-boot-blog-api?style=social)
-![GitHub forks](https://img.shields.io/github/forks/yourusername/spring-boot-blog-api?style=social)
+
 
 A versatile RESTful API for managing a comprehensive blog application built using Spring Boot.
 
@@ -17,10 +15,6 @@ A versatile RESTful API for managing a comprehensive blog application built usin
   - [Categories](#categories)
   - [Users](#users)
   - [Posts](#posts)
-- [Authentication](#authentication)
-- [Sample Requests](#sample-requests)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Overview
 
