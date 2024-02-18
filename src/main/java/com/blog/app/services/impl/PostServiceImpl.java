@@ -98,7 +98,6 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "Category ID", categoryId));
 
         Post post = postDtoToPost(postDto);
-        post.setImageName("default");
         post.setCreatedDate(new Date());
         post.setCategory(category);
         post.setUser(user);
@@ -114,7 +113,6 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "Post Id", postID));
         post.setContent(postDto.getContent());
         post.setTitle(postDto.getTitle());
-        post.setImageName(postDto.getImageName());
         post.setCreatedDate(postDto.getCreatedDate());
 
         Post savedPost = this.postRepository.save(post);

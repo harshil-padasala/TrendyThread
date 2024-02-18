@@ -23,9 +23,6 @@ public class PostController {
     @Autowired
     private PostService postService;
 
-    @Autowired
-    private FileService fileService;
-
     @Value("${project.image}")
     private String path;
 
@@ -102,20 +99,6 @@ public class PostController {
                                                     @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIR, required = false) boolean isAsc) {
         PostResponse postResponse = this.postService.searchPost(keyword, pageNumber, pageSize, sortBy, isAsc);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
-    }
-
-    // Post image upload
-    @PostMapping("/image/upload/{postId}")
-    public ResponseEntity<PostDto> uploadPostImage(
-            @RequestParam("image") MultipartFile image,
-            @PathVariable Integer postId) throws IOException {
-
-        PostDto postDto = this.postService.getPostByID(postId);
-        String fileName = this.fileService.uploadImage(path, image);
-        postDto.setImageName(fileName);
-
-        PostDto updatedPostDto = this.postService.updatePostById(postId, postDto);
-        return new ResponseEntity<>(updatedPostDto, HttpStatus.OK);
     }
 
 }

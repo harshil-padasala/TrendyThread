@@ -24,8 +24,6 @@ public class Post {
     @Column(nullable = false)
     private String content;
 
-    private String imageName;
-
     private Date createdDate;
 
     @ManyToOne
