@@ -2,6 +2,7 @@ package com.blog.app.services.impl;
 
 import com.blog.app.entities.User;
 import com.blog.app.exceptions.ResourceNotFoundException;
+import com.blog.app.exceptions.UserAlreadyExistException;
 import com.blog.app.payloads.UserDto;
 import com.blog.app.repositories.UserRepository;
 import com.blog.app.services.UserService;
@@ -22,9 +23,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto createUser(UserDto userDto) {
-        User user = this.dtoToUser(userDto);
-        User savedUser = this.userRepository.save(user);
-        return this.userToDto(savedUser);
+        if ((userRepository.findByEmail(userDto.getEmail())).isEmpty()) {
+
+            User user = this.dtoToUser(userDto);
+            User savedUser = this.userRepository.save(user);
+            return this.userToDto(savedUser);
+        }
+        else {
+            throw new UserAlreadyExistException("User", "email", userDto.getEmail());
+        }
     }
 
     @Override
