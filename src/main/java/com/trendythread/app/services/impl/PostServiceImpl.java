@@ -19,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class PostServiceImpl implements PostService {
@@ -47,6 +48,8 @@ public class PostServiceImpl implements PostService {
     public PostResponse findAllPosts(Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc) {
         Pageable pageable = isAsc ? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()) :
                 PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
+
+        List<Post> list = this.postRepository.findAll();
 
         Page<Post> pagePostList = this.postRepository.findAll(pageable);
 //        List<Post> postList = pagePostList.getContent();

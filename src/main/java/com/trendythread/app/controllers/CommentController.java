@@ -21,7 +21,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @Tag(
-        name = "REST APIs for COMMENT in TrendyThread",
+        name = "CRUD REST APIs for COMMENT in TrendyThread",
         description = "CRUD REST APIs in TrendyThread to CREATE, UPDATE, FETCH and DELETE comments"
 )
 @RestController

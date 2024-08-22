@@ -9,8 +9,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-@SpringBootApplication
 @OpenAPIDefinition(
 		info = @Info(
 				title = "Blog microservice REST API Documentation",
@@ -31,6 +31,8 @@ import org.springframework.context.annotation.Bean;
 				url = "https://github.com/harshil-padasala"
 		)
 )
+@SpringBootApplication
+@EnableJpaAuditing(auditorAwareRef = "auditAwareImpl")
 public class BlogAppApiApplication {
 
 	public static void main(String[] args) {
@@ -42,3 +44,4 @@ public class BlogAppApiApplication {
 		return new ModelMapper();
 	}
 }
+
