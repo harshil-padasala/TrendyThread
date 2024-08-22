@@ -7,9 +7,7 @@ spring:
     name: TrendyThread
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/blogapp
-    username: blog
-    password: blog
+    url: jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:6543/postgres?user=postgres.mntswotqhnptsbfmsyep&password=8BLyQ-w*7Z9kLmD
     driver-class-name: org.postgresql.Driver
 
   jpa:
