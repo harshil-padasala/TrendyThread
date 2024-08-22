@@ -12,7 +12,7 @@ A versatile RESTful API for managing a comprehensive blog application built usin
   - [Categories](#categories)
   - [Posts](#posts)
   - [Users](#users)
-  - [Comments]
+  - [Comments](#comments)
 
 ## Overview 🌐
 
@@ -39,7 +39,7 @@ To get started with this project, follow these steps:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/spring-boot-blog-api.git
+   https://github.com/harshil-padasala/TrendyThread.git
 
 
 ## Endpoints 🛣️
@@ -71,3 +71,5 @@ To get started with this project, follow these steps:
 - **POST /api/users**: Register a new user.
 - **PUT /api/users/{userId}**: Upload a user for a specific userId.
 - **DELETE /api/users/{userId}**: Delete a user.
+
+### Comments 
