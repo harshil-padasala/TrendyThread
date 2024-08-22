@@ -1,4 +1,4 @@
-# Spring Boot Blog REST API 📚
+# TrendyThread Blog Application 📚
 
 A versatile RESTful API for managing a comprehensive blog application built using Spring Boot 🌱.
 
