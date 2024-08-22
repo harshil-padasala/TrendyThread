@@ -8,11 +8,11 @@
         <version>2.7.8</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.blog.app</groupId>
-    <artifactId>Blog-App-API</artifactId>
+    <groupId>com.trendythread.app</groupId>
+    <artifactId>trendythread</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Blog-App-API</name>
-    <description>This is backend API for blogging app.</description>
+    <name>TrendyThread</name>
+    <description>This is backend API for TrendyThread blogging app.</description>
     <properties>
         <java.version>17</java.version>
     </properties>
@@ -33,8 +33,8 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -51,7 +51,11 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.modelmapper/modelmapper -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.8.0</version>
+        </dependency>
         <dependency>
             <groupId>org.modelmapper</groupId>
             <artifactId>modelmapper</artifactId>

@@ -2,13 +2,18 @@ server:
   port: 8079
 
 spring:
+
+  application:
+    name: TrendyThread
+
   datasource:
-    url: jdbc:mysql://localhost:3306/blog-api
-    username: root
-    password: root
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:postgresql://localhost:5432/blogapp
+    username: blog
+    password: blog
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+
