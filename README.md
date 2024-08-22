@@ -12,6 +12,7 @@ A versatile RESTful API for managing a comprehensive blog application built usin
   - [Categories](#categories)
   - [Posts](#posts)
   - [Users](#users)
+  - [Comments]
 
 ## Overview 🌐
 
