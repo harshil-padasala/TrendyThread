@@ -13,8 +13,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @OpenAPIDefinition(
 		info = @Info(
-				title = "Blog microservice REST API Documentation",
-				description = "TrendyThread Blog  microservice REST API Documentation",
+				title = "TrendyThread Blog microservice REST API Documentation",
+				description = "TrendyThread Blog microservice REST API Documentation",
 				version = "v1",
 				contact = @Contact(
 						name = "Harshil Padasala",
