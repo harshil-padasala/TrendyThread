@@ -4,8 +4,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
-import java.util.Date;
+import jakarta.persistence.*;
+
 import java.util.Set;
 
 @Entity
@@ -36,8 +36,8 @@ public class Post extends BaseEntity {
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false, name = "user_id")
-    private User user;
+    @JoinColumn(nullable = false, name = "blogger_id")
+    private Blogger blogger;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Comment> comments;

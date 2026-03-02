@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 @Tag(
         name = "CRUD REST APIs for POST in TrendyThread",
@@ -44,11 +44,11 @@ public class PostController {
             responseCode = "201",
             description = "HTTP Status Created"
     )
-    @PostMapping("/users/{userID}/category/{categoryID}")
-    public ResponseEntity<PostDto> createPost(@Valid @RequestBody PostDto postDto, @PathVariable Integer userID, @PathVariable Integer categoryID) {
-        log.info("POST /api/v1/posts/users/{}/category/{} - createPost request received: postDto={}", userID, categoryID, postDto);
-        PostDto newPost = this.postService.createPost(postDto, userID, categoryID);
-        log.info("POST /api/v1/posts - created new post for user={}, category={} -> {}", userID, categoryID, newPost);
+    @PostMapping("/bloggers/{bloggerID}/category/{categoryID}")
+    public ResponseEntity<PostDto> createPost(@Valid @RequestBody PostDto postDto, @PathVariable Integer bloggerID, @PathVariable Integer categoryID) {
+        log.info("POST /api/v1/posts/bloggers/{}/category/{} - createPost request received: postDto={}", bloggerID, categoryID, postDto);
+        PostDto newPost = this.postService.createPost(postDto, bloggerID, categoryID);
+        log.info("POST /api/v1/posts - created new post for blogger={}, category={} -> {}", bloggerID, categoryID, newPost);
 
         return new ResponseEntity<>(newPost, HttpStatus.CREATED);
     }
@@ -112,24 +112,24 @@ public class PostController {
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 
-    // GET Mapping - Get by User
+    // GET Mapping - Get by Blogger
     @Operation(
             summary = "FETCH Post REST API",
-            description = "REST API to fetch all Posts based on user-id"
+            description = "REST API to fetch all Posts based on blogger-id"
     )
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "200",
             description = "HTTP Status OK"
     )
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<PostResponse> fetchByUserId(@PathVariable Integer userId,
+    @GetMapping("/blogger/{bloggerId}")
+    public ResponseEntity<PostResponse> fetchByBloggerId(@PathVariable Integer bloggerId,
                                                       @RequestParam(value = "pageNumber", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) Integer pageNumber,
                                                       @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) Integer pageSize,
                                                       @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
                                                       @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIR, required = false) boolean isAsc) {
-        log.info("GET /api/v1/posts/user/{} - fetchByUserId request received: pageNumber={}, pageSize={}, sortBy={}, isAsc={}", userId, pageNumber, pageSize, sortBy, isAsc);
-        PostResponse postResponse = this.postService.findPostsByUserId(userId, pageNumber, pageSize, sortBy, isAsc);
-        log.debug("GET /api/v1/posts/user/{} - fetched posts response: {}", userId, postResponse);
+        log.info("GET /api/v1/posts/blogger/{} - fetchByBloggerId request received: pageNumber={}, pageSize={}, sortBy={}, isAsc={}", bloggerId, pageNumber, pageSize, sortBy, isAsc);
+        PostResponse postResponse = this.postService.findPostsByBloggerId(bloggerId, pageNumber, pageSize, sortBy, isAsc);
+        log.debug("GET /api/v1/posts/blogger/{} - fetched posts response: {}", bloggerId, postResponse);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 

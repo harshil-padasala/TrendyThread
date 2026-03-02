@@ -1,4 +1,4 @@
-INSERT INTO "public"."bloggers" (
+INSERT INTO "public"."blogger" (
     "id",
     "created_at",
     "created_by",
@@ -10,7 +10,7 @@ INSERT INTO "public"."bloggers" (
     "password"
 ) VALUES
     ('2', '2024-08-22 16:59:26.445629', 'TRENDY-THREAD_MS', null, null, 'A software developer specializing in backend systems.', 'john.doe@example.com', 'John Doe', 'P@ssword#123'),
-    ('3', '2024-08-22 16:59:45.585923', 'TRENDY-THREAD_MS', null, null, 'A front-end developer with a passion for user interfaces.', 'jane.smith@example.com', 'Jane Smith', 'Secur3P@ss!'),
+    ('3', '2024-08-22 16:59:45.585923', 'TRENDY-THREAD_MS', null, null, 'A front-end developer with a passion for blogger interfaces.', 'jane.smith@example.com', 'Jane Smith', 'Secur3P@ss!'),
     ('4', '2024-08-22 16:59:54.479553', 'TRENDY-THREAD_MS', null, null, 'A DevOps engineer focused on CI/CD pipelines.', 'alice.johnson@example.com', 'Alice Johnson', 'P@ssw0rd!'),
     ('5', '2024-08-22 17:00:05.414025', 'TRENDY-THREAD_MS', null, null, 'A cloud architect specializing in AWS and Azure.', 'bob.brown@example.com', 'Bob Brown', 'MyS3cretP@ss'),
     ('6', '2024-08-22 17:00:12.991674', 'TRENDY-THREAD_MS', null, null, 'A database administrator with expertise in SQL and NoSQL databases.', 'charlie.davis@example.com', 'Charlie Davis', 'Ch@rlie123'),

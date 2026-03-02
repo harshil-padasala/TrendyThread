@@ -1,4 +1,4 @@
-package com.trendythread.app.config;
+package com.trendythread.app.config.logging;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

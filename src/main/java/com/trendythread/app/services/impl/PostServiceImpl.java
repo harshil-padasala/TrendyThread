@@ -1,14 +1,14 @@
 package com.trendythread.app.services.impl;
 
+import com.trendythread.app.entities.Blogger;
 import com.trendythread.app.entities.Category;
 import com.trendythread.app.entities.Post;
-import com.trendythread.app.entities.User;
 import com.trendythread.app.exceptions.ResourceNotFoundException;
 import com.trendythread.app.dto.PostDto;
 import com.trendythread.app.payloads.PostResponse;
 import com.trendythread.app.repositories.CategoryRepository;
 import com.trendythread.app.repositories.PostRepository;
-import com.trendythread.app.repositories.UserRepository;
+import com.trendythread.app.repositories.BloggersRepository;
 import com.trendythread.app.services.PostService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.List;
 
 @Service
 @Slf4j
@@ -32,7 +30,7 @@ public class PostServiceImpl implements PostService {
     private ModelMapper modelMapper;
 
     @Autowired
-    private UserRepository userRepository;
+    private BloggersRepository bloggersRepository;
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -79,35 +77,35 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostResponse findPostsByUserId(Integer userID, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc) {
-        log.info("findPostsByUserId - request received: userId={}, pageNumber={}, pageSize={}, sortBy={}, isAsc={}", userID, pageNumber, pageSize, sortBy, isAsc);
+    public PostResponse findPostsByBloggerId(Integer bloggerID, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc) {
+        log.info("findPostsByBloggerId - request received: bloggerID={}, pageNumber={}, pageSize={}, sortBy={}, isAsc={}", bloggerID, pageNumber, pageSize, sortBy, isAsc);
 
         Pageable pageable = isAsc ? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()) :
                 PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
 
-        User user = this.userRepository.findById(userID)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "User Id", userID));
+        Blogger blogger = this.bloggersRepository.findById(bloggerID)
+                .orElseThrow(() -> new ResourceNotFoundException("Blogger", "Blogger Id", bloggerID));
 
-        Page<Post> posts = this.postRepository.findByUser(user, pageable);
+        Page<Post> posts = this.postRepository.findByBlogger(blogger, pageable);
 
         PostResponse response = this.generatePostAsPageResponse(posts);
-        log.debug("findPostsByUserId - found {} posts for userId={}", response.getTotalElements(), userID);
+        log.debug("findPostsByBloggerId - found {} posts for findPostsByBloggerId={}", response.getTotalElements(), bloggerID);
         return response;
     }
 
     @Override
-    public PostDto createPost(PostDto postDto, Integer userID, Integer categoryId) {
-        log.info("createPost - request received: userId={}, categoryId={}, postDto={}", userID, categoryId, postDto);
+    public PostDto createPost(PostDto postDto, Integer bloggerID, Integer categoryId) {
+        log.info("createPost - request received: bloggerId={}, categoryId={}, postDto={}", bloggerID, categoryId, postDto);
 
-        User user = userRepository.findById(userID)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "User ID", userID));
+        Blogger blogger = bloggersRepository.findById(bloggerID)
+                .orElseThrow(() -> new ResourceNotFoundException("Blogger", "Blogger ID", bloggerID));
 
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "Category ID", categoryId));
 
         Post post = postDtoToPost(postDto);
         post.setCategory(category);
-        post.setUser(user);
+        post.setBlogger(blogger);
 
         Post newPost = this.postRepository.save(post);
 

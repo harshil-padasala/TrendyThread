@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,7 +37,7 @@ public class PostDto {
 
     @Schema(
             description = "Description of the post. Must be at least 10 characters long.",
-            example = "Cloud computing is a technology that allows users to access and manage computing resources over the internet..."
+            example = "Cloud computing is a technology that allows bloggers to access and manage computing resources over the internet..."
     )
     @NotEmpty
     @Size(min = 10, message = "size must be between minimum 10 characters long")
@@ -63,10 +63,10 @@ public class PostDto {
     private CategoryDto category;
 
     @Schema(
-            description = "User who created the post.",
-            implementation = UserDto.class
+            description = "Blogger who created the post.",
+            implementation = BloggerDto.class
     )
-    private UserDto user;
+    private BloggerDto blogger;
 
     @Schema(
             description = "Set of comments associated with the post.",

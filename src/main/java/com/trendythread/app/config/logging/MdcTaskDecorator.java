@@ -1,4 +1,4 @@
-package com.trendythread.app.config;
+package com.trendythread.app.config.logging;
 
 import org.slf4j.MDC;
 import org.springframework.core.task.TaskDecorator;

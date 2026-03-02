@@ -16,11 +16,11 @@ public interface PostService {
     // Get Mapping By All Category
     PostResponse findPostsByCategoryId(Integer categoryID, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc);
 
-    // Get Mapping By All User
-    PostResponse findPostsByUserId(Integer userID, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc);
+    // Get Mapping By All Blogger
+    PostResponse findPostsByBloggerId(Integer bloggerID, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc);
 
     // Post Mapping
-    PostDto createPost(PostDto postDto, Integer userId, Integer postId);
+    PostDto createPost(PostDto postDto, Integer bloggerId, Integer postId);
 
     // Put Mapping
     PostDto updateByPostId(Integer postID, PostDto postDto);
