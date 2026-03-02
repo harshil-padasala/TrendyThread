@@ -5,6 +5,7 @@ import com.trendythread.app.dto.UserDto;
 import com.trendythread.app.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ import java.util.List;
 )
 @RestController
 @RequestMapping("/api/v1/users")
+@Slf4j
 public class UserController {
 
     @Autowired
@@ -41,7 +43,9 @@ public class UserController {
     )
     @PostMapping
     public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
+        log.info("POST /api/v1/users - createUser request received: userDto={}", userDto);
         UserDto savedUserDto = userService.createUser(userDto);
+        log.info("POST /api/v1/users - user created: {}", savedUserDto);
         return new ResponseEntity<>(savedUserDto, HttpStatus.CREATED);
     }
 
@@ -55,7 +59,9 @@ public class UserController {
     )
     @GetMapping("/{userId}")
     public ResponseEntity<UserDto> fetchByUserId(@PathVariable Integer userId) {
+        log.info("GET /api/v1/users/{} - fetchByUserId request received", userId);
         UserDto userDto = userService.findByUserId(userId);
+        log.debug("GET /api/v1/users/{} - fetched user: {}", userId, userDto);
         return ResponseEntity.ok(userDto);
     }
 
@@ -69,7 +75,9 @@ public class UserController {
     )
     @GetMapping
     public ResponseEntity<List<UserDto>> fetchAllUsers() {
+        log.info("GET /api/v1/users - fetchAllUsers request received");
         List<UserDto> userDtoList = userService.fetchAllUsers();
+        log.debug("GET /api/v1/users - fetched {} users", userDtoList == null ? 0 : userDtoList.size());
         return ResponseEntity.ok(userDtoList);
     }
 
@@ -83,7 +91,9 @@ public class UserController {
     )
     @PutMapping("/{userId}")
     public ResponseEntity<UserDto> updateByUserId(@PathVariable Integer userId, @Valid @RequestBody UserDto userDto) {
+        log.info("PUT /api/v1/users/{} - updateByUserId request received: userDto={}", userId, userDto);
         UserDto updatedUserDto = userService.updateByUserId(userDto, userId);
+        log.info("PUT /api/v1/users/{} - update successful: {}", userId, updatedUserDto);
         return ResponseEntity.ok(updatedUserDto);
     }
 
@@ -97,7 +107,9 @@ public class UserController {
     )
     @DeleteMapping("/{userId}")
     public ResponseEntity<ApiResponse> deleteByUserId(@PathVariable Integer userId) {
+        log.info("DELETE /api/v1/users/{} - deleteByUserId request received", userId);
         this.userService.fetchByUserId(userId);
+        log.info("DELETE /api/v1/users/{} - deletion completed", userId);
 //        return new ResponseEntity<>(Map.of("message", "User Deleted Successfully with User-Id " + userId), HttpStatus.OK);
         return new ResponseEntity<ApiResponse>(new ApiResponse("User Deleted Successfully with User-Id " + userId, true), HttpStatus.OK);
     }

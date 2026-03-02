@@ -1,12 +1,13 @@
 package com.trendythread.app.controllers;
 
-import com.trendythread.app.config.AppConstants;
+import com.trendythread.app.constants.AppConstants;
 import com.trendythread.app.payloads.ApiResponse;
 import com.trendythread.app.dto.PostDto;
 import com.trendythread.app.payloads.PostResponse;
 import com.trendythread.app.services.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,7 @@ import javax.validation.Valid;
 )
 @RestController
 @RequestMapping("/api/v1/posts")
+@Slf4j
 public class PostController {
 
     @Autowired
@@ -44,7 +46,9 @@ public class PostController {
     )
     @PostMapping("/users/{userID}/category/{categoryID}")
     public ResponseEntity<PostDto> createPost(@Valid @RequestBody PostDto postDto, @PathVariable Integer userID, @PathVariable Integer categoryID) {
+        log.info("POST /api/v1/posts/users/{}/category/{} - createPost request received: postDto={}", userID, categoryID, postDto);
         PostDto newPost = this.postService.createPost(postDto, userID, categoryID);
+        log.info("POST /api/v1/posts - created new post for user={}, category={} -> {}", userID, categoryID, newPost);
 
         return new ResponseEntity<>(newPost, HttpStatus.CREATED);
     }
@@ -60,7 +64,9 @@ public class PostController {
     )
     @GetMapping("/{postId}")
     public ResponseEntity<PostDto> fetchByPostId(@PathVariable Integer postId) {
+        log.info("GET /api/v1/posts/{} - fetchByPostId request received", postId);
         PostDto postDto = this.postService.findByPostId(postId);
+        log.debug("GET /api/v1/posts/{} - fetched post: {}", postId, postDto);
         return new ResponseEntity<>(postDto, HttpStatus.OK);
     }
 
@@ -79,7 +85,9 @@ public class PostController {
             @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
             @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIR, required = false) boolean isAsc) {
+        log.info("GET /api/v1/posts - fetchAllPosts request received: pageNumber={}, pageSize={}, sortBy={}, isAsc={}", pageNumber, pageSize, sortBy, isAsc);
         PostResponse postResponse = this.postService.findAllPosts(pageNumber, pageSize, sortBy, isAsc);
+        log.debug("GET /api/v1/posts - fetched posts response: {}", postResponse);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 
@@ -98,7 +106,9 @@ public class PostController {
                                                           @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) Integer pageSize,
                                                           @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
                                                           @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIR, required = false) boolean isAsc) {
+        log.info("GET /api/v1/posts/category/{} - fetchByCategoryId request received: pageNumber={}, pageSize={}, sortBy={}, isAsc={}", categoryId, pageNumber, pageSize, sortBy, isAsc);
         PostResponse postResponse = this.postService.findPostsByCategoryId(categoryId, pageNumber, pageSize, sortBy, isAsc);
+        log.debug("GET /api/v1/posts/category/{} - fetched posts response: {}", categoryId, postResponse);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 
@@ -117,7 +127,9 @@ public class PostController {
                                                       @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) Integer pageSize,
                                                       @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
                                                       @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIR, required = false) boolean isAsc) {
+        log.info("GET /api/v1/posts/user/{} - fetchByUserId request received: pageNumber={}, pageSize={}, sortBy={}, isAsc={}", userId, pageNumber, pageSize, sortBy, isAsc);
         PostResponse postResponse = this.postService.findPostsByUserId(userId, pageNumber, pageSize, sortBy, isAsc);
+        log.debug("GET /api/v1/posts/user/{} - fetched posts response: {}", userId, postResponse);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 
@@ -132,7 +144,9 @@ public class PostController {
     )
     @PutMapping("/{postId}")
     public ResponseEntity<PostDto> updateByPostId(@PathVariable Integer postId, @Valid @RequestBody PostDto postDto) {
+        log.info("PUT /api/v1/posts/{} - updateByPostId request received: postDto={}", postId, postDto);
         PostDto savedPostDto = this.postService.updateByPostId(postId, postDto);
+        log.info("PUT /api/v1/posts/{} - update successful: {}", postId, savedPostDto);
         return new ResponseEntity<>(savedPostDto, HttpStatus.OK);
     }
 
@@ -147,7 +161,9 @@ public class PostController {
     )
     @DeleteMapping("/{postId}")
     public ResponseEntity<ApiResponse> deleteByPostId(@PathVariable Integer postId) {
+        log.info("DELETE /api/v1/posts/{} - deleteByPostId request received", postId);
         this.postService.deleteByPostId(postId);
+        log.info("DELETE /api/v1/posts/{} - deletion completed", postId);
         return new ResponseEntity<>(
                 new ApiResponse("Post has been deleted!!", true),
                 HttpStatus.OK);
@@ -168,7 +184,9 @@ public class PostController {
                                                     @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) Integer pageSize,
                                                     @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
                                                     @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIR, required = false) boolean isAsc) {
+        log.info("GET /api/v1/posts/search/{} - searchPosts request received: pageNumber={}, pageSize={}, sortBy={}, isAsc={}", keyword, pageNumber, pageSize, sortBy, isAsc);
         PostResponse postResponse = this.postService.searchPost(keyword, pageNumber, pageSize, sortBy, isAsc);
+        log.debug("GET /api/v1/posts/search/{} - search response: {}", keyword, postResponse);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 

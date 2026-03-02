@@ -1,4 +1,4 @@
-package com.trendythread.app.config;
+package com.trendythread.app.constants;
 
 public class AppConstants {
     public static final String DEFAULT_PAGE_NUMBER = "0";

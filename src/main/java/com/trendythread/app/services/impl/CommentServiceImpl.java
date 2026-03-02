@@ -12,11 +12,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class CommentServiceImpl implements CommentService {
 
     @Autowired
@@ -30,6 +32,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto createComment(CommentDto commentDto, Integer postId) {
+        log.info("createComment - request received: postId={}, commentDto={}", postId, commentDto);
         Post post = this.postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "Post Id", postId));
 
@@ -37,20 +40,26 @@ public class CommentServiceImpl implements CommentService {
         comment.setPost(post);
 
         Comment savedComment = this.commentRepository.save(comment);
-        return this.modelMapper.map(savedComment, CommentDto.class);
+        CommentDto result = this.modelMapper.map(savedComment, CommentDto.class);
+        log.info("createComment - comment created: id={}", result.getId());
+        return result;
     }
 
     @Override
     public List<CommentDto> findByPostId(Integer postId) {
+        log.info("findByPostId - request received: postId={}", postId);
 
         List<Comment> comments = commentRepository.findByPostId(postId);
 
-        return comments.stream().map(comment -> this.modelMapper.map(comment, CommentDto.class)).collect(Collectors.toList());
+        List<CommentDto> result = comments.stream().map(comment -> this.modelMapper.map(comment, CommentDto.class)).collect(Collectors.toList());
+        log.debug("findByPostId - found {} comments for postId={}", result.size(), postId);
+        return result;
 
     }
 
     @Override
     public CommentDto findByPostIdAndCommentId(Integer postId, Integer commentId) {
+        log.info("findByPostIdAndCommentId - request received: postId={}, commentId={}", postId, commentId);
 
         // retrieve post entity by id
         Post post = postRepository.findById(postId).orElseThrow(
@@ -61,14 +70,18 @@ public class CommentServiceImpl implements CommentService {
                 new ResourceNotFoundException("Comment", "id", commentId));
 
         if(!comment.getPost().getId().equals(post.getId())){
+            log.warn("findByPostIdAndCommentId - comment {} does not belong to post {}", commentId, postId);
             throw new BlogAPIException(HttpStatus.BAD_REQUEST, "Comment does not belong to post");
         }
 
-        return this.modelMapper.map(comment, CommentDto.class);
+        CommentDto result = this.modelMapper.map(comment, CommentDto.class);
+        log.debug("findByPostIdAndCommentId - fetched comment: {}", result);
+        return result;
     }
 
     @Override
     public CommentDto updateByPostIdAndCommentId(Integer postId, Integer commentId, CommentDto commentRequest) {
+        log.info("updateByPostIdAndCommentId - request received: postId={}, commentId={}, commentRequest={}", postId, commentId, commentRequest);
 
         // retrieve post entity by id
         Post post = postRepository.findById(postId).orElseThrow(
@@ -79,6 +92,7 @@ public class CommentServiceImpl implements CommentService {
                 new ResourceNotFoundException("Comment", "id", commentId));
 
         if(!comment.getPost().getId().equals(post.getId())){
+            log.warn("updateByPostIdAndCommentId - comment {} does not belong to post {}", commentId, postId);
             throw new BlogAPIException(HttpStatus.BAD_REQUEST, "Comment does not belong to post");
         }
 
@@ -88,14 +102,17 @@ public class CommentServiceImpl implements CommentService {
 
         Comment updatedComment = commentRepository.save(comment);
 
-        return this.modelMapper.map(updatedComment, CommentDto.class);
+        CommentDto result = this.modelMapper.map(updatedComment, CommentDto.class);
+        log.info("updateByPostIdAndCommentId - update successful: id={}", result.getId());
+        return result;
     }
 
     @Override
     public void deleteByCommentId(Integer commentId) {
+        log.info("deleteByCommentId - request received: id={}", commentId);
         this.commentRepository.delete(this.commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment", "Comment Id", commentId)));
-
+        log.info("deleteByCommentId - deleted comment id={}", commentId);
 
     }
 }

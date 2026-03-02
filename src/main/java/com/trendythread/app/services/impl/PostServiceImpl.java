@@ -17,11 +17,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.Date;
 import java.util.List;
 
 @Service
+@Slf4j
 public class PostServiceImpl implements PostService {
 
     @Autowired
@@ -38,28 +39,31 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDto findByPostId(Integer PostId) {
+        log.info("findByPostId - request received: id={}", PostId);
         Post post = this.postRepository.findById(PostId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "Post id", PostId));
 
-        return this.postToPostDto(post);
+        PostDto dto = this.postToPostDto(post);
+        log.debug("findByPostId - fetched post: {}", dto);
+        return dto;
     }
 
     @Override
     public PostResponse findAllPosts(Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc) {
+        log.info("findAllPosts - request received: pageNumber={}, pageSize={}, sortBy={}, isAsc={}", pageNumber, pageSize, sortBy, isAsc);
         Pageable pageable = isAsc ? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()) :
                 PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
 
-        List<Post> list = this.postRepository.findAll();
-
         Page<Post> pagePostList = this.postRepository.findAll(pageable);
-//        List<Post> postList = pagePostList.getContent();
-//        List<PostDto> postDtoList = pagePostList.stream().map(this::postToPostDto).toList();
 
-        return this.generatePostAsPageResponse(pagePostList);
+        PostResponse response = this.generatePostAsPageResponse(pagePostList);
+        log.debug("findAllPosts - returning page: pageNumber={}, pageSize={}, totalElements={}", response.getPageNumber(), response.getPageSize(), response.getTotalElements());
+        return response;
     }
 
     @Override
     public PostResponse findPostsByCategoryId(Integer categoryID, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc) {
+        log.info("findPostsByCategoryId - request received: categoryId={}, pageNumber={}, pageSize={}, sortBy={}, isAsc={}", categoryID, pageNumber, pageSize, sortBy, isAsc);
 
         Pageable pageable = isAsc ? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()) :
                 PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
@@ -68,14 +72,15 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "Category ID", categoryID));
 
         Page<Post> posts = this.postRepository.findByCategory(category, pageable);
-//        List<Post> posts = this.postRepository.findByCategory(category);
-//        List<PostDto> postDtoList = posts.stream().map((this::postToPostDto)).toList();
 
-        return this.generatePostAsPageResponse(posts);
+        PostResponse response = this.generatePostAsPageResponse(posts);
+        log.debug("findPostsByCategoryId - found {} posts for categoryId={}", response.getTotalElements(), categoryID);
+        return response;
     }
 
     @Override
     public PostResponse findPostsByUserId(Integer userID, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc) {
+        log.info("findPostsByUserId - request received: userId={}, pageNumber={}, pageSize={}, sortBy={}, isAsc={}", userID, pageNumber, pageSize, sortBy, isAsc);
 
         Pageable pageable = isAsc ? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()) :
                 PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
@@ -84,14 +89,15 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "User Id", userID));
 
         Page<Post> posts = this.postRepository.findByUser(user, pageable);
-//        List<Post> postList = posts.getContent();
-//        List<PostDto> postDtoList = posts.stream().map((this::postToPostDto)).toList();
 
-        return this.generatePostAsPageResponse(posts);
+        PostResponse response = this.generatePostAsPageResponse(posts);
+        log.debug("findPostsByUserId - found {} posts for userId={}", response.getTotalElements(), userID);
+        return response;
     }
 
     @Override
     public PostDto createPost(PostDto postDto, Integer userID, Integer categoryId) {
+        log.info("createPost - request received: userId={}, categoryId={}, postDto={}", userID, categoryId, postDto);
 
         User user = userRepository.findById(userID)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "User ID", userID));
@@ -105,35 +111,45 @@ public class PostServiceImpl implements PostService {
 
         Post newPost = this.postRepository.save(post);
 
-        return postToPostDto(newPost);
+        PostDto dto = postToPostDto(newPost);
+        log.info("createPost - created post id={}", dto.getId());
+        return dto;
     }
 
     @Override
     public PostDto updateByPostId(Integer postID, PostDto postDto) {
+        log.info("updateByPostId - request received: postId={}, postDto={}", postID, postDto);
         Post post = this.postRepository.findById(postID)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "Post Id", postID));
         post.setContent(postDto.getContent());
         post.setTitle(postDto.getTitle());
 
         Post savedPost = this.postRepository.save(post);
-        return this.postToPostDto(savedPost);
+        PostDto dto = this.postToPostDto(savedPost);
+        log.info("updateByPostId - update successful: id={}", dto.getId());
+        return dto;
     }
 
     @Override
     public void deleteByPostId(Integer postID) {
+        log.info("deleteByPostId - request received: id={}", postID);
         this.postRepository.findById(postID)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "Post Id", postID));
 
         this.postRepository.deleteById(postID);
+        log.info("deleteByPostId - deleted post id={}", postID);
     }
 
     @Override
     public PostResponse searchPost(String keyword, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc) {
+        log.info("searchPost - request received: keyword={}, pageNumber={}, pageSize={}, sortBy={}, isAsc={}", keyword, pageNumber, pageSize, sortBy, isAsc);
         Pageable pageable = isAsc ? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()) :
                 PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
         Page<Post> postList = this.postRepository.findByTitleContaining(keyword, pageable);
 
-        return this.generatePostAsPageResponse(postList);
+        PostResponse response = this.generatePostAsPageResponse(postList);
+        log.debug("searchPost - found {} posts matching '{}'", response.getTotalElements(), keyword);
+        return response;
     }
 
     private PostResponse generatePostAsPageResponse(Page<Post> posts) {

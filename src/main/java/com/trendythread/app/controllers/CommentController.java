@@ -5,6 +5,7 @@ import com.trendythread.app.dto.CommentDto;
 import com.trendythread.app.services.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ import java.util.List;
 )
 @RestController
 @RequestMapping("/api/v1/")
+@Slf4j
 public class CommentController {
 
     @Autowired
@@ -41,7 +43,9 @@ public class CommentController {
     )
     @PostMapping("/post/{postId}/comments")
     public ResponseEntity<CommentDto> createComment(@PathVariable Integer postId, @RequestBody CommentDto commentDto) {
+        log.info("POST /api/v1/post/{}/comments - createComment request received: commentDto={}", postId, commentDto);
         CommentDto commentDto1 = this.commentService.createComment(commentDto, postId);
+        log.info("POST /api/v1/post/{}/comments - comment created: {}", postId, commentDto1);
 
         return new ResponseEntity<>(commentDto1, HttpStatus.CREATED);
     }
@@ -56,7 +60,10 @@ public class CommentController {
     )
     @GetMapping("/posts/{postId}/comments")
     public List<CommentDto> findByPostId(@PathVariable(value = "postId") Integer postId){
-        return commentService.findByPostId(postId);
+        log.info("GET /api/v1/posts/{}/comments - request received", postId);
+        List<CommentDto> results = commentService.findByPostId(postId);
+        log.debug("GET /api/v1/posts/{}/comments - found {} comments", postId, results == null ? 0 : results.size());
+        return results;
     }
 
     @Operation(
@@ -70,7 +77,9 @@ public class CommentController {
     @GetMapping("/posts/{postId}/comments/{id}")
     public ResponseEntity<CommentDto> fetchByPostIdAndCommentId(@PathVariable(value = "postId") Integer postId,
                                                                 @PathVariable(value = "id") Integer commentId){
+        log.info("GET /api/v1/posts/{}/comments/{} - request received", postId, commentId);
         CommentDto commentDto = commentService.findByPostIdAndCommentId(postId, commentId);
+        log.debug("GET /api/v1/posts/{}/comments/{} - fetched comment: {}", postId, commentId, commentDto);
         return new ResponseEntity<>(commentDto, HttpStatus.OK);
     }
 
@@ -86,7 +95,9 @@ public class CommentController {
     public ResponseEntity<CommentDto> updateByPostIdAndCommentId(@PathVariable(value = "postId") Integer postId,
                                                                  @PathVariable(value = "id") Integer commentId,
                                                                  @Valid @RequestBody CommentDto commentDto){
+        log.info("PUT /api/v1/posts/{}/comments/{} - update request: {}", postId, commentId, commentDto);
         CommentDto updatedComment = commentService.updateByPostIdAndCommentId(postId, commentId, commentDto);
+        log.info("PUT /api/v1/posts/{}/comments/{} - update successful: {}", postId, commentId, updatedComment);
         return new ResponseEntity<>(updatedComment, HttpStatus.OK);
     }
 
@@ -100,7 +111,9 @@ public class CommentController {
     )
     @DeleteMapping("/posts/{postId}/comments/{commentId}")
     public ResponseEntity<ApiResponse> deleteComment(@PathVariable Integer commentId) {
+        log.info("DELETE /api/v1/posts/comments/{} - delete request received", commentId);
         this.commentService.deleteByCommentId(commentId);
+        log.info("DELETE /api/v1/posts/comments/{} - deletion completed", commentId);
 
         return new ResponseEntity<>(new ApiResponse("Comment Deleted Successfully.", true), HttpStatus.CREATED);
     }
