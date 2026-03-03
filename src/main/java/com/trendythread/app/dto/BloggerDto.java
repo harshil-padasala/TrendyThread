@@ -30,13 +30,31 @@ public class BloggerDto {
     private int id;
 
     @Schema(
-            description = "The Blogger's name, which must be at least 3 characters long.",
+            description = "The Blogger's username, which must be at least 3 characters long.",
             example = "John Doe"
     )
     @Valid
-    @Size(min = 3, max = 20, message = "name cannot be empty and must be min of 3 characters!!!")
-    @NotEmpty(message = "name cannot be empty")
-    private String name;
+    @Size(min = 3, max = 20, message = "UserName cannot be empty and must be min of 3 characters!!!")
+    @NotEmpty(message = "UserName cannot be empty")
+    private String userName;
+
+    @Schema(
+            description = "The Blogger's first name, which must be at least 3 characters long.",
+            example = "John Doe"
+    )
+    @Valid
+    @Size(min = 3, max = 20, message = "First name cannot be empty and must be min of 3 characters!!!")
+    @NotEmpty(message = "First Name cannot be empty")
+    private String firstName;
+
+    @Schema(
+            description = "The Blogger's last name, which must be at least 3 characters long.",
+            example = "John Doe"
+    )
+    @Valid
+    @Size(min = 3, max = 20, message = "LastName cannot be empty and must be min of 3 characters!!!")
+    @NotEmpty(message = "Last Name cannot be empty")
+    private String lastName;
 
     @Schema(
             description = "The Blogger's email address, which must be a valid email format.",

@@ -21,13 +21,21 @@ public class Blogger extends BaseEntity {
     private int id;
 
     @Column(nullable = false, unique = true)
-    private String name;
+    private String userName;
+
+    @Column(nullable = false)
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
 
     @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
     private String password;
+
+    private String plainPassword;
 
     private String about;
 

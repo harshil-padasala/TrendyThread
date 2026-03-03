@@ -1,6 +1,7 @@
 package com.trendythread.app.services;
 
 import com.trendythread.app.dto.BloggerDto;
+import com.trendythread.app.entities.Blogger;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface BloggersService {
     List<BloggerDto> fetchAllBloggers();
 
     void deleteByBloggerId(Integer id);
+
+    Blogger findByEmail(String email);
 }

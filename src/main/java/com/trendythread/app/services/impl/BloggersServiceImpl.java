@@ -7,6 +7,7 @@ import com.trendythread.app.repositories.BloggersRepository;
 import com.trendythread.app.services.BloggersService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,6 +19,9 @@ public class BloggersServiceImpl implements BloggersService {
 
     @Autowired
     private BloggersRepository bloggersRepository;
+
+    @Autowired
+    private PasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -37,9 +41,12 @@ public class BloggersServiceImpl implements BloggersService {
         log.info("updateByBloggerId - request received: id={}, BloggerDto={}", id, bloggerDto);
         Blogger updatedBlogger = this.bloggersRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Blogger", "id", id));
-        updatedBlogger.setName(bloggerDto.getName());
+        updatedBlogger.setUserName(bloggerDto.getUserName());
         updatedBlogger.setEmail(bloggerDto.getEmail());
-        updatedBlogger.setPassword(bloggerDto.getPassword());
+        updatedBlogger.setFirstName(bloggerDto.getFirstName());
+        updatedBlogger.setLastName(bloggerDto.getLastName());
+        updatedBlogger.setPassword(bCryptPasswordEncoder.encode(bloggerDto.getPassword()));
+        updatedBlogger.setPlainPassword(bloggerDto.getPassword());
         updatedBlogger.setAbout(bloggerDto.getAbout());
 
         this.bloggersRepository.save(updatedBlogger);
@@ -78,8 +85,24 @@ public class BloggersServiceImpl implements BloggersService {
         log.info("fetchByBloggerId (delete) - deleted Blogger id={}", id);
     }
 
+    @Override
+    public Blogger findByEmail(String email) {
+        log.debug("findByEmail - request received: email={}", email);
+        Blogger blogger = this.bloggersRepository.findByEmail(email);
+        if (blogger != null) {
+            log.debug("findByEmail - Blogger found: id={}", blogger.getId());
+            return blogger;
+        }
+        log.debug("findByEmail - no Blogger found with email: {}", email);
+        return null;
+    }
+
     private Blogger dtoToBlogger(BloggerDto bloggerDto) {
-        return this.modelMapper.map(bloggerDto, Blogger.class);
+        String password = bloggerDto.getPassword();
+        bloggerDto.setPassword(bCryptPasswordEncoder.encode(bloggerDto.getPassword()));
+        Blogger blogger = this.modelMapper.map(bloggerDto, Blogger.class);
+        blogger.setPlainPassword(password);
+        return blogger;
     }
 
     private BloggerDto BloggerToDto(Blogger blogger) {

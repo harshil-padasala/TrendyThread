@@ -6,6 +6,9 @@ logging:
   level:
     root: INFO
     com.trendythread.app: DEBUG
+    org:
+        springframework:
+            security: DEBUG
   file:
     path: logs/trendy-thread.log
     name: trendy-thread.log
@@ -22,7 +25,6 @@ spring:
     driver-class-name: org.postgresql.Driver
 
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
     show-sql: false

@@ -3,22 +3,18 @@ package com.trendythread.app.controllers;
 import com.trendythread.app.dto.BloggerDto;
 import com.trendythread.app.payloads.ApiResponse;
 import com.trendythread.app.services.BloggersService;
+import com.trendythread.app.services.impl.security.UserDetailsServiceImpl;
+import com.trendythread.app.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
 import java.util.List;
 
 @Tag(
@@ -32,22 +28,6 @@ public class BloggersController {
 
     @Autowired
     private BloggersService bloggersService;
-
-    @Operation(
-            summary = "CREATE Blogger REST API",
-            description = "REST API to create new Blogger in TrendyThread"
-    )
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "201",
-            description = "HTTP Status CREATED"
-    )
-    @PostMapping
-    public ResponseEntity<BloggerDto> createBlogger(@Valid @RequestBody BloggerDto bloggerDto) {
-        log.info("POST /api/v1/bloggers - createBlogger request received: bloggerDto={}", bloggerDto);
-        BloggerDto savedBloggerDto = bloggersService.createBlogger(bloggerDto);
-        log.info("POST /api/v1/bloggers - blogger created: {}", savedBloggerDto);
-        return new ResponseEntity<>(savedBloggerDto, HttpStatus.CREATED);
-    }
 
     @Operation(
             summary = "FETCH Blogger REST API",
