@@ -1,6 +1,7 @@
 package com.trendythread.app.controllers;
 
 import com.trendythread.app.dto.BloggerDto;
+import com.trendythread.app.dto.UpdateProfileDto;
 import com.trendythread.app.entities.Blogger;
 import com.trendythread.app.payloads.ApiResponse;
 import com.trendythread.app.services.BloggersService;
@@ -19,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @Tag(
@@ -61,6 +63,26 @@ public class BloggersController {
 
         log.debug("GET /api/v1/bloggers/me - fetched blogger: {}", blogger);
         return ResponseEntity.ok(blogger);
+    }
+
+    @Operation(
+            summary = "UPDATE Current User Profile REST API",
+            description = "REST API to update the currently authenticated user's profile (firstName, lastName, about)",
+            security = @SecurityRequirement(name = "Bearer")
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "HTTP Status OK"
+    )
+    @PutMapping("/me")
+    public ResponseEntity<BloggerDto> updateCurrentUserProfile(@Valid @RequestBody UpdateProfileDto updateProfileDto, Principal principal) {
+        String authenticatedUserEmail = principal.getName(); // Gets the email of logged-in user
+        log.info("PUT /api/v1/bloggers/me - updateCurrentUserProfile request received: updateData={}, authenticatedUser={}", updateProfileDto, authenticatedUserEmail);
+        
+        BloggerDto updatedBlogger = bloggersService.updateCurrentUserProfile(updateProfileDto, authenticatedUserEmail);
+        
+        log.info("PUT /api/v1/bloggers/me - update successful: {}", updatedBlogger);
+        return ResponseEntity.ok(updatedBlogger);
     }
 
     @Operation(

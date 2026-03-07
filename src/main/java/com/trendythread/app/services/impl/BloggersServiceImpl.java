@@ -1,6 +1,7 @@
 package com.trendythread.app.services.impl;
 
 import com.trendythread.app.dto.BloggerDto;
+import com.trendythread.app.dto.UpdateProfileDto;
 import com.trendythread.app.entities.Blogger;
 import com.trendythread.app.exceptions.ResourceNotFoundException;
 import com.trendythread.app.repositories.BloggersRepository;
@@ -96,6 +97,26 @@ public class BloggersServiceImpl implements BloggersService {
         }
         log.debug("findByEmail - no Blogger found with email: {}", email);
         return null;
+    }
+
+    @Override
+    public BloggerDto updateCurrentUserProfile(UpdateProfileDto updateProfileDto, String authenticatedUserEmail) {
+        log.info("updateCurrentUserProfile - request received: email={}, updateData={}", authenticatedUserEmail, updateProfileDto);
+        
+        // Find the blogger by email
+        Blogger blogger = this.bloggersRepository.findByEmail(authenticatedUserEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("Blogger", "email", authenticatedUserEmail));
+        
+        // Update only the profile fields (no password change)
+        blogger.setFirstName(updateProfileDto.getFirstName());
+        blogger.setLastName(updateProfileDto.getLastName());
+        blogger.setAbout(updateProfileDto.getAbout());
+        
+        Blogger savedBlogger = this.bloggersRepository.save(blogger);
+        BloggerDto result = this.BloggerToDto(savedBlogger);
+        
+        log.info("updateCurrentUserProfile - update successful: id={}", result.getId());
+        return result;
     }
 
     private Blogger dtoToBlogger(BloggerDto bloggerDto) {
