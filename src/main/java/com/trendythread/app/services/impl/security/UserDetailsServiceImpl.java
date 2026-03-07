@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -26,13 +27,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        Blogger blogger = bloggersRepository.findByUserName(username);
+        // Username parameter contains email address (as configured in AuthController)
+        Optional<Blogger> blogger = bloggersRepository.findByEmail(username);
 
-        if (Objects.isNull(blogger)) {
-            log.error("UserDetailsServiceImpl - loadUserByUsername: User not found with username={}", username);
-            throw new UsernameNotFoundException("User not found with username: " + username);
+        if (blogger.isEmpty()) {
+            log.error("UserDetailsServiceImpl - loadUserByUsername: User not found with email={}", username);
+            throw new UsernameNotFoundException("User not found with email: " + username);
         }
 
-        return new BloggerPrincipal(blogger);
+        return new BloggerPrincipal(blogger.get());
     }
 }

@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 
+import java.security.Principal;
+
 @Tag(
         name = "CRUD REST APIs for POST in TrendyThread",
         description = "CRUD REST APIs in TrendyThread to CREATE, UPDATE, FETCH and DELETE post details"
@@ -44,11 +46,12 @@ public class PostController {
             responseCode = "201",
             description = "HTTP Status Created"
     )
-    @PostMapping("/bloggers/{bloggerID}/category/{categoryID}")
-    public ResponseEntity<PostDto> createPost(@Valid @RequestBody PostDto postDto, @PathVariable Integer bloggerID, @PathVariable Integer categoryID) {
-        log.info("POST /api/v1/posts/bloggers/{}/category/{} - createPost request received: postDto={}", bloggerID, categoryID, postDto);
-        PostDto newPost = this.postService.createPost(postDto, bloggerID, categoryID);
-        log.info("POST /api/v1/posts - created new post for blogger={}, category={} -> {}", bloggerID, categoryID, newPost);
+    @PostMapping("/category/{categoryID}")
+    public ResponseEntity<PostDto> createPost(@Valid @RequestBody PostDto postDto, @PathVariable Integer categoryID, Principal  principal) {
+        String authenticatedUserEmail = principal.getName(); // Gets the email of logged-in user
+        log.info("POST /api/v1/posts/category/{} - createPost request received: postDto={}", categoryID, postDto);
+        PostDto newPost = this.postService.createPost(postDto, authenticatedUserEmail, categoryID);
+        log.info("POST /api/v1/posts - created new post for blogger={}, category={} -> {}", authenticatedUserEmail, categoryID, newPost);
 
         return new ResponseEntity<>(newPost, HttpStatus.CREATED);
     }
@@ -91,6 +94,24 @@ public class PostController {
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 
+    // GET Mapping - Get Latest Posts
+    @Operation(
+            summary = "FETCH Latest Posts REST API",
+            description = "REST API to fetch latest posts in TrendyThread"
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "HTTP Status OK"
+    )
+    @GetMapping("/latest")
+    public ResponseEntity<PostResponse> getLatestPosts(
+            @RequestParam(value = "limit", defaultValue = "6", required = false) Integer limit) {
+        log.info("GET /api/v1/posts/latest - getLatestPosts request received: limit={}", limit);
+        PostResponse postResponse = this.postService.getLatestPosts(limit);
+        log.debug("GET /api/v1/posts/latest - fetched {} latest posts", postResponse.getContent().size());
+        return new ResponseEntity<>(postResponse, HttpStatus.OK);
+    }
+
     // GET Mapping - Get by Category
     @Operation(
             summary = "FETCH Post REST API",
@@ -121,15 +142,37 @@ public class PostController {
             responseCode = "200",
             description = "HTTP Status OK"
     )
-    @GetMapping("/blogger/{bloggerId}")
-    public ResponseEntity<PostResponse> fetchByBloggerId(@PathVariable Integer bloggerId,
+    @GetMapping("/blogger")
+    public ResponseEntity<PostResponse> fetchByBloggerId(@RequestParam(value = "pageNumber", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) Integer pageNumber,
+                                                      @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) Integer pageSize,
+                                                      @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+                                                      @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIR, required = false) boolean isAsc,
+                                                        Principal principal) {
+        String authenticatedUserEmail = principal.getName(); // Gets the email of logged-in user
+        log.info("GET /api/v1/posts/blogger - fetchByBloggerId request received: email={}, pageNumber={}, pageSize={}, sortBy={}, isAsc={}", authenticatedUserEmail, pageNumber, pageSize, sortBy, isAsc);
+        PostResponse postResponse = this.postService.findPostsByBloggerId(authenticatedUserEmail, pageNumber, pageSize, sortBy, isAsc);
+        log.debug("GET /api/v1/posts/blogger email={} - fetched posts response: {}", authenticatedUserEmail, postResponse);
+        return new ResponseEntity<>(postResponse, HttpStatus.OK);
+    }
+
+    // GET Mapping - Get by User ID
+    @Operation(
+            summary = "FETCH Post REST API",
+            description = "REST API to fetch all Posts based on user-id"
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "HTTP Status OK"
+    )
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<PostResponse> fetchByUserId(@PathVariable Integer userId,
                                                       @RequestParam(value = "pageNumber", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) Integer pageNumber,
                                                       @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) Integer pageSize,
                                                       @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
                                                       @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIR, required = false) boolean isAsc) {
-        log.info("GET /api/v1/posts/blogger/{} - fetchByBloggerId request received: pageNumber={}, pageSize={}, sortBy={}, isAsc={}", bloggerId, pageNumber, pageSize, sortBy, isAsc);
-        PostResponse postResponse = this.postService.findPostsByBloggerId(bloggerId, pageNumber, pageSize, sortBy, isAsc);
-        log.debug("GET /api/v1/posts/blogger/{} - fetched posts response: {}", bloggerId, postResponse);
+        log.info("GET /api/v1/posts/user/{} - fetchByUserId request received: pageNumber={}, pageSize={}, sortBy={}, isAsc={}", userId, pageNumber, pageSize, sortBy, isAsc);
+        PostResponse postResponse = this.postService.findPostsByUserId(userId, pageNumber, pageSize, sortBy, isAsc);
+        log.debug("GET /api/v1/posts/user/{} - fetched posts response: {}", userId, postResponse);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 
@@ -143,9 +186,10 @@ public class PostController {
             description = "HTTP Status OK"
     )
     @PutMapping("/{postId}")
-    public ResponseEntity<PostDto> updateByPostId(@PathVariable Integer postId, @Valid @RequestBody PostDto postDto) {
-        log.info("PUT /api/v1/posts/{} - updateByPostId request received: postDto={}", postId, postDto);
-        PostDto savedPostDto = this.postService.updateByPostId(postId, postDto);
+    public ResponseEntity<PostDto> updateByPostId(@PathVariable Integer postId, @Valid @RequestBody PostDto postDto, Principal principal) {
+        String authenticatedUserEmail = principal.getName(); // Gets the email of logged-in user
+        log.info("PUT /api/v1/posts/{} - updateByPostId request received: postDto={}, authenticatedUser={}", postId, postDto, authenticatedUserEmail);
+        PostDto savedPostDto = this.postService.updateByPostId(postId, postDto, authenticatedUserEmail);
         log.info("PUT /api/v1/posts/{} - update successful: {}", postId, savedPostDto);
         return new ResponseEntity<>(savedPostDto, HttpStatus.OK);
     }

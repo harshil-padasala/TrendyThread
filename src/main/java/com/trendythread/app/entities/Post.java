@@ -22,13 +22,13 @@ public class Post extends BaseEntity {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String title;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String description;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)

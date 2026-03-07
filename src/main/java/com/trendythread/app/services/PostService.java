@@ -13,17 +13,23 @@ public interface PostService {
     // Get Mapping
     PostResponse findAllPosts(Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc);
 
+    // Get Latest Posts
+    PostResponse getLatestPosts(Integer limit);
+
     // Get Mapping By All Category
     PostResponse findPostsByCategoryId(Integer categoryID, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc);
 
     // Get Mapping By All Blogger
-    PostResponse findPostsByBloggerId(Integer bloggerID, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc);
+    PostResponse findPostsByBloggerId(String authenticatedUserEmail, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc);
+
+    // Get Mapping By User ID
+    PostResponse findPostsByUserId(Integer userId, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc);
 
     // Post Mapping
-    PostDto createPost(PostDto postDto, Integer bloggerId, Integer postId);
+    PostDto createPost(PostDto postDto, String authenticatedUserEmail, Integer postId);
 
     // Put Mapping
-    PostDto updateByPostId(Integer postID, PostDto postDto);
+    PostDto updateByPostId(Integer postID, PostDto postDto, String authenticatedUserEmail);
 
     // Delete Mapping
     void deleteByPostId(Integer postID);

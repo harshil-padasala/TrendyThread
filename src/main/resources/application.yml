@@ -21,7 +21,9 @@ spring:
     name: TrendyThread
 
   datasource:
-    url: jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:6543/postgres?user=postgres.mntswotqhnptsbfmsyep&password=8BLyQ-w*7Z9kLmD
+    url: jdbc:postgresql://ep-silent-pond-ai7bamlc.c-4.us-east-1.aws.neon.tech:5432/neondb?sslmode=require&channelBinding=require
+    username: neondb_owner
+    password: npg_uwpUBf1lN0VY
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -31,3 +33,15 @@ spring:
     properties:
       hibernate:
         format_sql: false
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: harshilpadsala99@gmail.com
+    password: ggjl pzsn rgyl zjod
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true

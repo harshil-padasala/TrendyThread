@@ -7,6 +7,8 @@ import lombok.Setter;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,33 +30,39 @@ public class PostDto {
     private Integer id;
 
     @Schema(
-            description = "Title of the post. Must be at least 4 characters long.",
+            description = "Title of the post. Must be between 4 and 500 characters.",
             example = "Introduction to Cloud Computing"
     )
-    @NotEmpty
-    @Size(min = 4, message = "size must be between minimum 4 characters long")
+    @NotEmpty(message = "Title cannot be empty")
+    @Size(min = 4, max = 500, message = "Title must be between 4 and 500 characters")
     private String title;
 
     @Schema(
-            description = "Description of the post. Must be at least 10 characters long.",
+            description = "Description of the post. Must be between 10 and 1000 characters.",
             example = "Cloud computing is a technology that allows bloggers to access and manage computing resources over the internet..."
     )
-    @NotEmpty
-    @Size(min = 10, message = "size must be between minimum 10 characters long")
+    @NotEmpty(message = "Description cannot be empty")
+    @Size(min = 10, max = 1000, message = "Description must be between 10 and 1000 characters")
     private String description;
 
     @Schema(
             description = "Content of the post. Must be at least 10 characters long."
     )
-    @NotEmpty
-    @Size(min = 10, message = "size must be between minimum 10 characters long")
+    @NotEmpty(message = "Content cannot be empty")
+    @Size(min = 10, message = "Content must be at least 10 characters long")
     private String content;
 
     @Schema(
             description = "Date and time when the post was created.",
             example = "2024-08-21T14:30:00Z"
     )
-    private Date createdDate;
+    private LocalDateTime createdAt;
+
+    @Schema(
+            description = "Date and time when the post was last updated.",
+            example = "2024-08-22T10:15:00Z"
+    )
+    private LocalDateTime updatedAt;
 
     @Schema(
             description = "Category associated with the post.",

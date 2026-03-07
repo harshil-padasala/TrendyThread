@@ -50,8 +50,12 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
                 }
             } else if (Objects.nonNull(authHeader)) {
                 log.warn("JwtSecurityFilter - Authorization header does not start with 'Bearer ': {}", authHeader);
+                filterChain.doFilter(request, response);
+                return;
             } else {
                 log.debug("JwtSecurityFilter - no Authorization header found in request");
+                filterChain.doFilter(request, response);
+                return;
             }
 
             if (Objects.nonNull(userName)) {

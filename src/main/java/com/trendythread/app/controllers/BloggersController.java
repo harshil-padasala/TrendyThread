@@ -1,11 +1,13 @@
 package com.trendythread.app.controllers;
 
 import com.trendythread.app.dto.BloggerDto;
+import com.trendythread.app.entities.Blogger;
 import com.trendythread.app.payloads.ApiResponse;
 import com.trendythread.app.services.BloggersService;
 import com.trendythread.app.services.impl.security.UserDetailsServiceImpl;
 import com.trendythread.app.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +32,36 @@ public class BloggersController {
 
     @Autowired
     private BloggersService bloggersService;
+
+    @Operation(
+            summary = "FETCH Current Authenticated User Profile REST API",
+            description = "REST API to fetch the currently authenticated user's profile details",
+            security = @SecurityRequirement(name = "Bearer")
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "HTTP Status OK"
+    )
+    @GetMapping("/me")
+    public ResponseEntity<BloggerDto> fetchCurrentUserProfile() {
+        log.info("GET /api/v1/bloggers/me - fetchCurrentUserProfile request received");
+        
+        // Get the authenticated user's email from SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName(); // This returns the email (username)
+        
+        log.debug("Fetching profile for authenticated user: {}", email);
+        
+        // Fetch the blogger by email
+        BloggerDto blogger = bloggersService.findByEmail(email);
+        if (blogger == null) {
+            log.error("Authenticated user not found in database: {}", email);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        log.debug("GET /api/v1/bloggers/me - fetched blogger: {}", blogger);
+        return ResponseEntity.ok(blogger);
+    }
 
     @Operation(
             summary = "FETCH Blogger REST API",

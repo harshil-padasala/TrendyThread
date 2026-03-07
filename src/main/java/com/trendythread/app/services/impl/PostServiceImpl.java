@@ -60,6 +60,17 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public PostResponse getLatestPosts(Integer limit) {
+        log.info("getLatestPosts - request received: limit={}", limit);
+        Pageable pageable = PageRequest.of(0, limit, Sort.by("createdAt").descending());
+        Page<Post> pagePostList = this.postRepository.findAll(pageable);
+
+        PostResponse response = this.generatePostAsPageResponse(pagePostList);
+        log.debug("getLatestPosts - returning {} latest posts", response.getContent().size());
+        return response;
+    }
+
+    @Override
     public PostResponse findPostsByCategoryId(Integer categoryID, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc) {
         log.info("findPostsByCategoryId - request received: categoryId={}, pageNumber={}, pageSize={}, sortBy={}, isAsc={}", categoryID, pageNumber, pageSize, sortBy, isAsc);
 
@@ -77,28 +88,45 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostResponse findPostsByBloggerId(Integer bloggerID, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc) {
-        log.info("findPostsByBloggerId - request received: bloggerID={}, pageNumber={}, pageSize={}, sortBy={}, isAsc={}", bloggerID, pageNumber, pageSize, sortBy, isAsc);
+    public PostResponse findPostsByBloggerId(String authenticatedUserEmail, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc) {
+        log.info("findPostsByBloggerId - request received: bloggerID={}, pageNumber={}, pageSize={}, sortBy={}, isAsc={}", authenticatedUserEmail, pageNumber, pageSize, sortBy, isAsc);
 
         Pageable pageable = isAsc ? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()) :
                 PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
 
-        Blogger blogger = this.bloggersRepository.findById(bloggerID)
-                .orElseThrow(() -> new ResourceNotFoundException("Blogger", "Blogger Id", bloggerID));
+        Blogger blogger = this.bloggersRepository.findByEmail(authenticatedUserEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("Blogger", "Blogger Id", authenticatedUserEmail));
 
         Page<Post> posts = this.postRepository.findByBlogger(blogger, pageable);
 
         PostResponse response = this.generatePostAsPageResponse(posts);
-        log.debug("findPostsByBloggerId - found {} posts for findPostsByBloggerId={}", response.getTotalElements(), bloggerID);
+        log.debug("findPostsByBloggerId - found {} posts for findPostsByBloggerId={}", response.getTotalElements(), authenticatedUserEmail);
         return response;
     }
 
     @Override
-    public PostDto createPost(PostDto postDto, Integer bloggerID, Integer categoryId) {
-        log.info("createPost - request received: bloggerId={}, categoryId={}, postDto={}", bloggerID, categoryId, postDto);
+    public PostResponse findPostsByUserId(Integer userId, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc) {
+        log.info("findPostsByUserId - request received: userId={}, pageNumber={}, pageSize={}, sortBy={}, isAsc={}", userId, pageNumber, pageSize, sortBy, isAsc);
 
-        Blogger blogger = bloggersRepository.findById(bloggerID)
-                .orElseThrow(() -> new ResourceNotFoundException("Blogger", "Blogger ID", bloggerID));
+        Pageable pageable = isAsc ? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()) :
+                PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
+
+        Blogger blogger = this.bloggersRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Blogger", "Blogger Id", userId));
+
+        Page<Post> posts = this.postRepository.findByBlogger(blogger, pageable);
+
+        PostResponse response = this.generatePostAsPageResponse(posts);
+        log.debug("findPostsByUserId - found {} posts for userId={}", response.getTotalElements(), userId);
+        return response;
+    }
+
+    @Override
+    public PostDto createPost(PostDto postDto, String authenticatedUserEmail, Integer categoryId) {
+        log.info("createPost - request received: bloggerId={}, categoryId={}, postDto={}", authenticatedUserEmail, categoryId, postDto);
+
+        Blogger blogger = bloggersRepository.findByEmail(authenticatedUserEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("Blogger", "Blogger ID", authenticatedUserEmail));
 
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "Category ID", categoryId));
@@ -115,11 +143,23 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostDto updateByPostId(Integer postID, PostDto postDto) {
-        log.info("updateByPostId - request received: postId={}, postDto={}", postID, postDto);
+    public PostDto updateByPostId(Integer postID, PostDto postDto, String authenticatedUserEmail) {
+        log.info("updateByPostId - request received: postId={}, postDto={}, authenticatedUser={}", postID, postDto, authenticatedUserEmail);
         Post post = this.postRepository.findById(postID)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "Post Id", postID));
+        
+        // Validate ownership - only the post creator can update their own post
+        if (post.getBlogger() == null || !post.getBlogger().getEmail().equals(authenticatedUserEmail)) {
+            log.warn("updateByPostId - FORBIDDEN: user {} attempted to update post {} owned by {}", 
+                    authenticatedUserEmail, postID, post.getBlogger() != null ? post.getBlogger().getEmail() : "unknown");
+            throw new com.trendythread.app.exceptions.BlogAPIException(
+                    org.springframework.http.HttpStatus.FORBIDDEN,
+                    "You can only update your own posts"
+            );
+        }
+        
         post.setContent(postDto.getContent());
+        post.setDescription(postDto.getDescription());
         post.setTitle(postDto.getTitle());
 
         Post savedPost = this.postRepository.save(post);

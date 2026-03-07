@@ -19,5 +19,5 @@ public interface BloggersService {
 
     void deleteByBloggerId(Integer id);
 
-    Blogger findByEmail(String email);
+    BloggerDto findByEmail(String email);
 }

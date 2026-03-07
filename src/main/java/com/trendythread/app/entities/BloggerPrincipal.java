@@ -26,7 +26,8 @@ public class BloggerPrincipal implements UserDetails {
 
     @Override
     public String getUsername() {
-        return blogger.getUserName();
+        // Return email as username since authentication is based on email
+        return blogger.getEmail();
     }
 
     @Override

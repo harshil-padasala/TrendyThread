@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -86,12 +87,12 @@ public class BloggersServiceImpl implements BloggersService {
     }
 
     @Override
-    public Blogger findByEmail(String email) {
+    public BloggerDto findByEmail(String email) {
         log.debug("findByEmail - request received: email={}", email);
-        Blogger blogger = this.bloggersRepository.findByEmail(email);
-        if (blogger != null) {
-            log.debug("findByEmail - Blogger found: id={}", blogger.getId());
-            return blogger;
+        Optional<Blogger> blogger = this.bloggersRepository.findByEmail(email);
+        if (blogger.isPresent()) {
+            log.debug("findByEmail - Blogger found: id={}", blogger.get().getId());
+            return this.BloggerToDto(blogger.get());
         }
         log.debug("findByEmail - no Blogger found with email: {}", email);
         return null;

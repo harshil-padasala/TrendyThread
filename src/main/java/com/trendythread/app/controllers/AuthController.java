@@ -7,6 +7,7 @@ import com.trendythread.app.entities.RefreshToken;
 import com.trendythread.app.payloads.JwtTokenResponse;
 import com.trendythread.app.repositories.RefreshTokenRepository;
 import com.trendythread.app.services.BloggersService;
+import com.trendythread.app.services.EmailService;
 import com.trendythread.app.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -49,6 +50,9 @@ public class AuthController {
 
     @Autowired
     private BloggersService bloggersService;
+
+    @Autowired
+    private EmailService emailService;
 
     /**
      * User registration/signup endpoint.
@@ -118,7 +122,7 @@ public class AuthController {
             log.debug("Signup request received for email: {}", email);
 
             // ===== STEP 2: Check if email already exists =====
-            Blogger existingBlogger = bloggersService.findByEmail(email);
+            BloggerDto existingBlogger = bloggersService.findByEmail(email);
             if (existingBlogger != null) {
                 log.warn("Signup attempt with existing email: {}", email);
                 return ResponseEntity.badRequest()
@@ -127,6 +131,10 @@ public class AuthController {
 
             // ===== STEP 3: Create new Blogger entity =====
             BloggerDto savedBlogger = bloggersService.createBlogger(bloggerDto);
+
+
+            emailService.sendWelcomeEmail(savedBlogger);
+            log.debug("Sent welcome email to: {}", savedBlogger.getEmail());
 
             // ===== STEP 4: Return success response =====
             Map<String, Object> response = new HashMap<>();
@@ -231,7 +239,7 @@ public class AuthController {
             log.debug("Authentication successful for email: {}", email);
 
             // ===== STEP 3: Fetch user from database =====
-            Blogger user = bloggersService.findByEmail(email);
+            BloggerDto user = bloggersService.findByEmail(email);
 
             if (user == null) {
                 // This should rarely happen since authentication succeeded, but safety check.
@@ -274,9 +282,11 @@ public class AuthController {
             refreshTokenRepository.save(refreshTokenEntity);
             log.debug("Saved refresh token to database for email: {}", email);
 
-            // ===== STEP 8: Set refresh token in response and return =====
+            // ===== STEP 8: Set user details and refresh token in response and return =====
             tokenResponse.setRefreshToken(refreshTokenString);
             tokenResponse.setRoles(roles);
+            tokenResponse.setUserId(user.getId());
+            tokenResponse.setName(user.getUserName());
             log.debug("Login successful for email: {}. Returning token response.", email);
 
             return ResponseEntity.ok(tokenResponse);

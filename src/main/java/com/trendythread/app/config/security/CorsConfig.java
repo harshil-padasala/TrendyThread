@@ -175,7 +175,6 @@ public class CorsConfig {
      * @return WebMvcConfigurer instance configured with CORS settings
      *
      * @see org.springframework.web.servlet.config.annotation.WebMvcConfigurer
-     * @see #addCorsMappings(CorsRegistry) - The method that defines actual CORS rules
      */
     @Bean(name = "CORSConfiguration")
     public WebMvcConfigurer webMvcConfigurer() {

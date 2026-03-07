@@ -77,10 +77,20 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private CategoryDto categoryToCategoryDto(Category category) {
-        return this.modelMapper.map(category, CategoryDto.class);
+        CategoryDto dto = new CategoryDto();
+        dto.setCategoryId(category.getId());
+        dto.setCategoryName(category.getName());
+        dto.setDescription(category.getDescription());
+        return dto;
     }
 
     private Category categoryDtoToCategory(CategoryDto categoryDto) {
-        return this.modelMapper.map(categoryDto, Category.class);
+        Category category = new Category();
+        if (categoryDto.getCategoryId() != null) {
+            category.setId(categoryDto.getCategoryId());
+        }
+        category.setName(categoryDto.getCategoryName());
+        category.setDescription(categoryDto.getDescription());
+        return category;
     }
 }

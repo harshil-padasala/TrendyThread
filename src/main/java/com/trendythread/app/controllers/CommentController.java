@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+
+import java.security.Principal;
 import java.util.List;
 
 @Tag(
@@ -42,12 +44,13 @@ public class CommentController {
             description = "HTTP Status CREATED"
     )
     @PostMapping("/post/{postId}/comments")
-    public ResponseEntity<CommentDto> createComment(@PathVariable Integer postId, @RequestBody CommentDto commentDto) {
-        log.info("POST /api/v1/post/{}/comments - createComment request received: commentDto={}", postId, commentDto);
-        CommentDto commentDto1 = this.commentService.createComment(commentDto, postId);
-        log.info("POST /api/v1/post/{}/comments - comment created: {}", postId, commentDto1);
+    public ResponseEntity<CommentDto> createComment(@PathVariable Integer postId, @RequestBody CommentDto commentDto, Principal principal) {
+        String authenticatedUserEmail = principal.getName(); // Gets the email of logged-in user
+        log.info("POST /api/v1/post/{}/comments - createComment request received: email={}, commentDto={}", postId, authenticatedUserEmail, commentDto);
+        CommentDto savedCommentDto = this.commentService.createComment(commentDto, postId, authenticatedUserEmail);
+        log.info("POST /api/v1/post/{}/comments - comment created: {}", postId, savedCommentDto);
 
-        return new ResponseEntity<>(commentDto1, HttpStatus.CREATED);
+        return new ResponseEntity<>(savedCommentDto, HttpStatus.CREATED);
     }
 
     @Operation(
@@ -94,9 +97,11 @@ public class CommentController {
     @PutMapping("/posts/{postId}/comments/{id}")
     public ResponseEntity<CommentDto> updateByPostIdAndCommentId(@PathVariable(value = "postId") Integer postId,
                                                                  @PathVariable(value = "id") Integer commentId,
-                                                                 @Valid @RequestBody CommentDto commentDto){
-        log.info("PUT /api/v1/posts/{}/comments/{} - update request: {}", postId, commentId, commentDto);
-        CommentDto updatedComment = commentService.updateByPostIdAndCommentId(postId, commentId, commentDto);
+                                                                 @Valid @RequestBody CommentDto commentDto,
+                                                                 Principal principal){
+        String authenticatedUserEmail = principal.getName(); // Gets the email of logged-in user
+        log.info("PUT /api/v1/posts/{}/comments/{} - update request: email={}, {}", postId, commentId, authenticatedUserEmail, commentDto);
+        CommentDto updatedComment = commentService.updateByPostIdAndCommentId(postId, commentId, commentDto, authenticatedUserEmail);
         log.info("PUT /api/v1/posts/{}/comments/{} - update successful: {}", postId, commentId, updatedComment);
         return new ResponseEntity<>(updatedComment, HttpStatus.OK);
     }
