@@ -9,6 +9,7 @@ import com.trendythread.app.payloads.PostResponse;
 import com.trendythread.app.repositories.CategoryRepository;
 import com.trendythread.app.repositories.PostRepository;
 import com.trendythread.app.repositories.BloggersRepository;
+import com.trendythread.app.services.CategoryService;
 import com.trendythread.app.services.PostService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,17 +24,28 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PostServiceImpl implements PostService {
 
-    @Autowired
-    private PostRepository postRepository;
+    private final PostRepository postRepository;
+
+    private final ModelMapper modelMapper;
+
+    private final BloggersRepository bloggersRepository;
+
+    private final CategoryRepository categoryRepository;
+
+    private final CategoryService categoryService;
 
     @Autowired
-    private ModelMapper modelMapper;
-
-    @Autowired
-    private BloggersRepository bloggersRepository;
-
-    @Autowired
-    private CategoryRepository categoryRepository;
+    public PostServiceImpl(PostRepository postRepository,
+                           ModelMapper modelMapper,
+                           BloggersRepository bloggersRepository,
+                           CategoryRepository categoryRepository,
+                           CategoryService categoryService) {
+        this.postRepository = postRepository;
+        this.modelMapper = modelMapper;
+        this.bloggersRepository = bloggersRepository;
+        this.categoryRepository = categoryRepository;
+        this.categoryService = categoryService;
+    }
 
     @Override
     public PostDto findByPostId(Integer PostId) {
@@ -137,6 +149,9 @@ public class PostServiceImpl implements PostService {
 
         Post newPost = this.postRepository.save(post);
 
+        // NEW: Update category post count
+        categoryService.updatePostCount(categoryId);
+
         PostDto dto = postToPostDto(newPost);
         log.info("createPost - created post id={}", dto.getId());
         return dto;
@@ -171,10 +186,14 @@ public class PostServiceImpl implements PostService {
     @Override
     public void deleteByPostId(Integer postID) {
         log.info("deleteByPostId - request received: id={}", postID);
-        this.postRepository.findById(postID)
+        Post post = this.postRepository.findById(postID)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "Post Id", postID));
 
-        this.postRepository.deleteById(postID);
+        this.postRepository.delete(post);
+
+        // NEW: Update category post count
+        categoryService.updatePostCount(post.getCategory().getId());
+
         log.info("deleteByPostId - deleted post id={}", postID);
     }
 

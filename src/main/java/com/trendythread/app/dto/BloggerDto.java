@@ -77,4 +77,11 @@ public class BloggerDto {
             example = "A software developer specializing in backend systems."
     )
     private String about;
+
+    @Schema(
+            description = "The role of the Blogger in the system. Determines access permissions.",
+            example = "ROLE_USER",
+            allowableValues = {"ROLE_USER", "ROLE_ADMIN"}
+    )
+    private String role;
 }

@@ -98,4 +98,7 @@ public class JwtTokenResponse {
         @Schema(description = "A list of granted authorities/roles associated with the authenticated user. Useful for client-side UI decisions.", example = "[\"ROLE_USER\", \"ROLE_ADMIN\"]")
         private List<String> roles;
 
+        @Schema(description = "The primary role of the user. Determines access level and permissions.", example = "ROLE_USER")
+        private String role;
+
 }

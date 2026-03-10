@@ -1,8 +1,7 @@
 package com.trendythread.app.controllers;
 
 import com.trendythread.app.dto.BloggerDto;
-import com.trendythread.app.dto.LoginRequest;
-import com.trendythread.app.entities.Blogger;
+import com.trendythread.app.payloads.LoginRequest;
 import com.trendythread.app.entities.RefreshToken;
 import com.trendythread.app.payloads.JwtTokenResponse;
 import com.trendythread.app.repositories.RefreshTokenRepository;
@@ -142,6 +141,7 @@ public class AuthController {
             response.put("id", savedBlogger.getId());
             response.put("email", savedBlogger.getEmail());
             response.put("name", savedBlogger.getUserName());
+            response.put("role", savedBlogger.getRole() != null ? savedBlogger.getRole() : "ROLE_USER"); // ADD: Include role in signup response
             response.put("note", "Please login with your credentials to receive JWT tokens");
 
             log.info("User registration successful for email: {}", email);
@@ -287,7 +287,8 @@ public class AuthController {
             tokenResponse.setRoles(roles);
             tokenResponse.setUserId(user.getId());
             tokenResponse.setName(user.getUserName());
-            log.debug("Login successful for email: {}. Returning token response.", email);
+            tokenResponse.setRole(user.getRole()); // ADD: Include user's role for frontend access control
+            log.debug("Login successful for email: {}. Returning token response with role: {}", email, user.getRole());
 
             return ResponseEntity.ok(tokenResponse);
 

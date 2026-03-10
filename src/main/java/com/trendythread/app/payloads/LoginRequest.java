@@ -1,4 +1,4 @@
-package com.trendythread.app.dto;
+package com.trendythread.app.payloads;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

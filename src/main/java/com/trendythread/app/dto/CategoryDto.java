@@ -41,4 +41,9 @@ public class CategoryDto {
     @NotEmpty
     @Size(min = 10, max = 200, message = "size must be between minimum 4 characters long")
     private String description;
+
+    private Boolean featured;
+    private Integer displayOrder;
+    private Integer postCount;
+    private Boolean autoSuggested;
 }

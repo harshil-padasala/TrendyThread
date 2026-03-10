@@ -2,6 +2,7 @@ package com.trendythread.app.controllers;
 
 import com.trendythread.app.payloads.ApiResponse;
 import com.trendythread.app.dto.CategoryDto;
+import com.trendythread.app.payloads.CategoryResponse;
 import com.trendythread.app.services.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
@@ -113,6 +115,65 @@ public class CategoryController {
         log.info("DELETE /api/v1/category/{} - deletion completed", categoryId);
         ApiResponse apiResponse = new ApiResponse("category has been deleted", true);
         return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
+    }
+
+    @Operation(
+            summary = "Get Featured Categories",
+            description = "Retrieves a list of featured categories for display in the navbar or homepage. " +
+                    "Featured categories are limited (typically 10-15) and ordered by displayOrder. " +
+                    "This endpoint is public and does not require authentication. " +
+                    "Used by frontend navigation components to show popular/curated categories."
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Successfully retrieved featured categories"
+    )
+    @GetMapping("/featured")
+    public ResponseEntity<List<CategoryDto>> getFeaturedCategories() {
+        List<CategoryDto> featuredCategories = categoryService.getFeaturedCategories();
+        return ResponseEntity.ok(featuredCategories);
+    }
+
+    @Operation(
+            summary = "Get All Categories (Paginated)",
+            description = "Retrieves all categories with pagination support. " +
+                    "Results can be sorted by field name (default: categoryName). " +
+                    "This endpoint is public and does not require authentication. " +
+                    "Used by the dedicated categories page to display all available categories with pagination controls."
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Successfully retrieved paginated categories"
+    )
+    @GetMapping("/paginated")
+    public ResponseEntity<CategoryResponse> getAllCategories(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "categoryName") String sortBy
+    ) {
+        CategoryResponse response = categoryService.getAllCategoriesPaginated(page, size, sortBy);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "Search Categories",
+            description = "Searches categories by keyword with pagination support. " +
+                    "The keyword is matched against category names (case-insensitive, partial match). " +
+                    "This endpoint is public and does not require authentication. " +
+                    "Returns paginated results to handle large result sets efficiently."
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Successfully retrieved search results"
+    )
+    @GetMapping("/search")
+    public ResponseEntity<CategoryResponse> searchCategories(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        CategoryResponse response = categoryService.searchCategories(keyword, page, size);
+        return ResponseEntity.ok(response);
     }
 
 }

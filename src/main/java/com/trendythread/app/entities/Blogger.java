@@ -41,4 +41,13 @@ public class Blogger extends BaseEntity {
 
     @OneToMany(mappedBy = "blogger", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post> posts;
+
+    // Add role field if not present
+    @Column(name = "role", nullable = false)
+    private String role = "ROLE_USER"; // Default to user, admin will have "ROLE_ADMIN"
+
+    // Helper method
+    public boolean isAdmin() {
+        return "ROLE_ADMIN".equals(this.role);
+    }
 }

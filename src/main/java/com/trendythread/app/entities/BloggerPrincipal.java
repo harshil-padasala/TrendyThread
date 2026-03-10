@@ -16,7 +16,21 @@ public class BloggerPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(() -> "ROLE_USER");
+        // Return the actual role from the Blogger entity
+        String role = blogger.getRole();
+
+        // Ensure role has ROLE_ prefix (Spring Security convention)
+        if (role != null && !role.startsWith("ROLE_")) {
+            role = "ROLE_" + role;
+        }
+
+        // Default to ROLE_USER if no role is set
+        if (role == null) {
+            role = "ROLE_USER";
+        }
+
+        String finalRole = role;
+        return Collections.singleton(() -> finalRole);
     }
 
     @Override

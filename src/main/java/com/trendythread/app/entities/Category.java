@@ -26,6 +26,18 @@ public class Category extends BaseEntity {
     @Column(nullable = false)
     private String description;
 
+    @Column(name = "featured", nullable = false)
+    private Boolean featured = false;
+
+    @Column(name = "display_order", nullable = false)
+    private Integer displayOrder = 0;
+
+    @Column(name = "post_count", nullable = false)
+    private Integer postCount = 0;
+
+    @Column(name = "auto_suggested", nullable = false)
+    private Boolean autoSuggested = false;
+
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts;
 }
