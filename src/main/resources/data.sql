@@ -26,34 +26,23 @@ INSERT INTO blogger (
     password,
     plain_password,
     about,
+    role,               -- ← ADD THIS
     created_at,
     created_by,
     updated_at,
     updated_by
 ) VALUES
-      -- Plain password: P@ssword#123
-      ('2', 'johndoe', 'John', 'Doe', 'john.doe@example.com', '$2a$12$6E9v.BvCkM9DZrSHh8GHeeCN2KbgF4OpaGWUea1RIsbWWXI.nq6ey', 'P@ssword#123', 'A software developer specializing in backend systems.', '2024-08-22 16:59:26.445629', 'TRENDY-THREAD_MS', null, null),
-      -- Plain password: Secur3P@ss!
-      ('3', 'janesmith', 'Jane', 'Smith', 'jane.smith@example.com', '$2a$12$mfitSBHfQyle7ez2OVhMSOOtXBvNJOi0De6AXmpw/R2zjz/n1EbpC', 'Secur3P@ss!', 'A front-end developer with a passion for user interfaces.', '2024-08-22 16:59:45.585923', 'TRENDY-THREAD_MS', null, null),
-      -- Plain password: P@ssw0rd!
-      ('4', 'alicejohnson', 'Alice', 'Johnson', 'alice.johnson@example.com', '$2a$12$LBHWGuSaRBUI6EqwaKbYguQaaO6Xm44nhhWGy02yD2cwiyMwJmhoC', 'P@ssw0rd!', 'A DevOps engineer focused on CI/CD pipelines.', '2024-08-22 16:59:54.479553', 'TRENDY-THREAD_MS', null, null),
-      -- Plain password: MyS3cretP@ss
-      ('5', 'bobbrown', 'Bob', 'Brown', 'bob.brown@example.com', '$2a$12$lm32sQIOtRchuBRDSw.W5O6NNAkB7bs0C/0QE6xk4ljPiyyGmqMd.', 'MyS3cretP@ss', 'A cloud architect specializing in AWS and Azure.', '2024-08-22 17:00:05.414025', 'TRENDY-THREAD_MS', null, null),
-      -- Plain password: Ch@rlie123
-      ('6', 'charliedavis', 'Charlie', 'Davis', 'charlie.davis@example.com', '$2a$12$1z3GMwOIcZ8REDrtWiLNqukBQ1mhANUSD6aByG.vmCB00Hqh9sHEa', 'Ch@rlie123', 'A database administrator with expertise in SQL and NoSQL databases.', '2024-08-22 17:00:12.991674', 'TRENDY-THREAD_MS', null, null),
-      -- Plain password: Ev@nS#2024
-      ('7', 'dianaevans', 'Diana', 'Evans', 'diana.evans@example.com', '$2a$12$4dfY2CCBxc74PiJZ5j3ct.yiXxSfxqzqxSyPknDqiGJ06dI/vg.TW', 'Ev@nS#2024', 'A security analyst with experience in threat detection and response.', '2024-08-22 17:00:19.852909', 'TRENDY-THREAD_MS', null, null),
-      -- Plain password: Eth@nSecure123
-      ('8', 'ethanharris', 'Ethan', 'Harris', 'ethan.harris@example.com', '$2a$12$7IGy7.DzrpmLYxvO6QmgLOJoVEQQmg2C5oGqL8ugbYuwbslLYVp9i', 'Eth@nSecure123', 'A mobile app developer with a focus on Android applications.', '2024-08-22 17:00:28.575854', 'TRENDY-THREAD_MS', null, null),
-      -- Plain password: F!0n@Gr33n
-      ('9', 'fionagreen', 'Fiona', 'Green', 'fiona.green@example.com', '$2a$12$mjbtyKT4b2.Crxv1uAbrJu94yoHlZyW9qb8SHVXo/tsx6enJw.F4S', 'F!0n@Gr33n', 'A project manager specializing in agile methodologies.', '2024-08-22 17:00:34.702538', 'TRENDY-THREAD_MS', null, null),
-      -- Plain password: G3orgeKing@123
-      ('10', 'georgeking', 'George', 'King', 'george.king@example.com', '$2a$12$zSNZTsUN7fvmHstQWgJcS.TaVFnH4NLGTvKKf5w3pXve2mWN/eR5i', 'G3orgeKing@123', 'A full-stack developer with experience in MERN and MEAN stacks.', '2024-08-22 17:00:42.586382', 'TRENDY-THREAD_MS', null, null),
-      -- Plain password: HannahL@w1s
-      ('11', 'hannahlewis', 'Hannah', 'Lewis', 'hannah.lewis@example.com', '$2a$12$3VF5LGk/od1ZM7ddguf7vO36mzviGek2p8ql1b3U0LPYPHREHKmsS', 'HannahL@w1s', 'A quality assurance engineer focused on automated testing.', '2024-08-22 17:00:50.881954', 'TRENDY-THREAD_MS', null, null),
-      -- Plain password: OliviaTech#789
-      ('12', 'oliviabennet', 'Olivia', 'Bennett', 'olivia.bennet@techworld.com', '$2a$12$giV.OedNUCpEHEVl9p3XcuUGcqNnFSj2Y201f6czYbGltZLTkonbW', 'OliviaTech#789', 'An AI specialist focused on developing cutting-edge machine learning models.', '2024-08-22 17:01:16.276802', 'TRENDY-THREAD_MS', null, null);
-
+      ('2', 'johndoe', 'John', 'Doe', 'john.doe@example.com', '$2a$12$6E9v.BvCkM9DZrSHh8GHeeCN2KbgF4OpaGWUea1RIsbWWXI.nq6ey', 'P@ssword#123', 'A software developer specializing in backend systems.', 'ROLE_USER', '2024-08-22 16:59:26.445629', 'TRENDY-THREAD_MS', null, null),
+      ('3', 'janesmith', 'Jane', 'Smith', 'jane.smith@example.com', '$2a$12$mfitSBHfQyle7ez2OVhMSOOtXBvNJOi0De6AXmpw/R2zjz/n1EbpC', 'Secur3P@ss!', 'A front-end developer with a passion for user interfaces.', 'ROLE_USER', '2024-08-22 16:59:45.585923', 'TRENDY-THREAD_MS', null, null),
+      ('4', 'alicejohnson', 'Alice', 'Johnson', 'alice.johnson@example.com', '$2a$12$LBHWGuSaRBUI6EqwaKbYguQaaO6Xm44nhhWGy02yD2cwiyMwJmhoC', 'P@ssw0rd!', 'A DevOps engineer focused on CI/CD pipelines.', 'ROLE_USER', '2024-08-22 16:59:54.479553', 'TRENDY-THREAD_MS', null, null),
+      ('5', 'bobbrown', 'Bob', 'Brown', 'bob.brown@example.com', '$2a$12$lm32sQIOtRchuBRDSw.W5O6NNAkB7bs0C/0QE6xk4ljPiyyGmqMd.', 'MyS3cretP@ss', 'A cloud architect specializing in AWS and Azure.', 'ROLE_USER', '2024-08-22 17:00:05.414025', 'TRENDY-THREAD_MS', null, null),
+      ('6', 'charliedavis', 'Charlie', 'Davis', 'charlie.davis@example.com', '$2a$12$1z3GMwOIcZ8REDrtWiLNqukBQ1mhANUSD6aByG.vmCB00Hqh9sHEa', 'Ch@rlie123', 'A database administrator with expertise in SQL and NoSQL databases.', 'ROLE_USER', '2024-08-22 17:00:12.991674', 'TRENDY-THREAD_MS', null, null),
+      ('7', 'dianaevans', 'Diana', 'Evans', 'diana.evans@example.com', '$2a$12$4dfY2CCBxc74PiJZ5j3ct.yiXxSfxqzqxSyPknDqiGJ06dI/vg.TW', 'Ev@nS#2024', 'A security analyst with experience in threat detection and response.', 'ROLE_USER', '2024-08-22 17:00:19.852909', 'TRENDY-THREAD_MS', null, null),
+      ('8', 'ethanharris', 'Ethan', 'Harris', 'ethan.harris@example.com', '$2a$12$7IGy7.DzrpmLYxvO6QmgLOJoVEQQmg2C5oGqL8ugbYuwbslLYVp9i', 'Eth@nSecure123', 'A mobile app developer with a focus on Android applications.', 'ROLE_USER', '2024-08-22 17:00:28.575854', 'TRENDY-THREAD_MS', null, null),
+      ('9', 'fionagreen', 'Fiona', 'Green', 'fiona.green@example.com', '$2a$12$mjbtyKT4b2.Crxv1uAbrJu94yoHlZyW9qb8SHVXo/tsx6enJw.F4S', 'F!0n@Gr33n', 'A project manager specializing in agile methodologies.', 'ROLE_USER', '2024-08-22 17:00:34.702538', 'TRENDY-THREAD_MS', null, null),
+      ('10', 'georgeking', 'George', 'King', 'george.king@example.com', '$2a$12$zSNZTsUN7fvmHstQWgJcS.TaVFnH4NLGTvKKf5w3pXve2mWN/eR5i', 'G3orgeKing@123', 'A full-stack developer with experience in MERN and MEAN stacks.', 'ROLE_USER', '2024-08-22 17:00:42.586382', 'TRENDY-THREAD_MS', null, null),
+      ('11', 'hannahlewis', 'Hannah', 'Lewis', 'hannah.lewis@example.com', '$2a$12$3VF5LGk/od1ZM7ddguf7vO36mzviGek2p8ql1b3U0LPYPHREHKmsS', 'HannahL@w1s', 'A quality assurance engineer focused on automated testing.', 'ROLE_USER', '2024-08-22 17:00:50.881954', 'TRENDY-THREAD_MS', null, null),
+      ('12', 'oliviabennet', 'Olivia', 'Bennett', 'olivia.bennet@techworld.com', '$2a$12$giV.OedNUCpEHEVl9p3XcuUGcqNnFSj2Y201f6czYbGltZLTkonbW', 'OliviaTech#789', 'An AI specialist focused on developing cutting-edge machine learning models.', 'ROLE_USER', '2024-08-22 17:01:16.276802', 'TRENDY-THREAD_MS', null, null);
 -- ========================================
 -- 2. CATEGORY TABLE DATA (11 records)
 -- ========================================
@@ -65,19 +54,23 @@ INSERT INTO category (
     updated_at,
     updated_by,
     description,
-    name
+    name,
+    featured,        -- ← ADD
+    display_order,   -- ← ADD
+    post_count,      -- ← ADD
+    auto_suggested   -- ← ADD
 ) VALUES
-      ('1', '2024-08-22 17:01:48.334631', 'TRENDY-THREAD_MS', null, null, 'A category exploring the principles and technologies behind quantum computing and its potential applications.', 'Quantum Computing'),
-      ('2', '2024-08-22 17:01:52.424802', 'TRENDY-THREAD_MS', null, null, 'A category that encompasses various cloud computing services and technologies.', 'Cloud Computing'),
-      ('3', '2024-08-22 17:01:58.825926', 'TRENDY-THREAD_MS', null, null, 'A category focused on AI technologies, including machine learning, neural networks, and deep learning.', 'Artificial Intelligence'),
-      ('4', '2024-08-22 17:02:04.170166', 'TRENDY-THREAD_MS', null, null, 'A category dedicated to the development of websites and web applications using various frameworks and technologies.', 'Web Development'),
-      ('5', '2024-08-22 17:02:08.50146', 'TRENDY-THREAD_MS', null, null, 'A category that covers topics related to securing information systems from threats and vulnerabilities.', 'Cybersecurity'),
-      ('6', '2024-08-22 17:02:13.678003', 'TRENDY-THREAD_MS', null, null, 'A category that includes topics on developing mobile applications for Android, iOS, and other platforms.', 'Mobile Development'),
-      ('7', '2024-08-22 17:02:18.538183', 'TRENDY-THREAD_MS', null, null, 'A category focused on data analysis, visualization, and the use of statistical methods to extract insights.', 'Data Science'),
-      ('8', '2024-08-22 17:02:22.73661', 'TRENDY-THREAD_MS', null, null, 'A category that covers the concepts and technologies behind decentralized digital ledgers and cryptocurrencies.', 'Blockchain'),
-      ('9', '2024-08-22 17:02:27.44715', 'TRENDY-THREAD_MS', null, null, 'A category dedicated to the network of physical devices that are connected and communicate over the internet.', 'Internet of Things'),
-      ('10', '2024-08-22 17:02:31.952916', 'TRENDY-THREAD_MS', null, null, 'A category that combines software development and IT operations, focusing on continuous integration and delivery.', 'DevOps'),
-      ('11', '2024-08-22 17:02:36.662944', 'TRENDY-THREAD_MS', null, null, 'A category that includes topics related to building and deploying models that enable computers to learn from data.', 'Machine Learning');
+      ('1',  '2024-08-22 17:01:48.334631', 'TRENDY-THREAD_MS', null, null, 'A category exploring the principles and technologies behind quantum computing and its potential applications.', 'Quantum Computing',        false, 1,  4, false),
+      ('2',  '2024-08-22 17:01:52.424802', 'TRENDY-THREAD_MS', null, null, 'A category that encompasses various cloud computing services and technologies.', 'Cloud Computing',                  false, 2,  4, false),
+      ('3',  '2024-08-22 17:01:58.825926', 'TRENDY-THREAD_MS', null, null, 'A category focused on AI technologies, including machine learning, neural networks, and deep learning.', 'Artificial Intelligence',  false, 3,  3, false),
+      ('4',  '2024-08-22 17:02:04.170166', 'TRENDY-THREAD_MS', null, null, 'A category dedicated to the development of websites and web applications using various frameworks and technologies.', 'Web Development',    false, 4,  4, false),
+      ('5',  '2024-08-22 17:02:08.50146',  'TRENDY-THREAD_MS', null, null, 'A category that covers topics related to securing information systems from threats and vulnerabilities.', 'Cybersecurity',            false, 5,  4, false),
+      ('6',  '2024-08-22 17:02:13.678003', 'TRENDY-THREAD_MS', null, null, 'A category that includes topics on developing mobile applications for Android, iOS, and other platforms.', 'Mobile Development',       false, 6,  4, false),
+      ('7',  '2024-08-22 17:02:18.538183', 'TRENDY-THREAD_MS', null, null, 'A category focused on data analysis, visualization, and the use of statistical methods to extract insights.', 'Data Science',            false, 7,  4, false),
+      ('8',  '2024-08-22 17:02:22.73661',  'TRENDY-THREAD_MS', null, null, 'A category that covers the concepts and technologies behind decentralized digital ledgers and cryptocurrencies.', 'Blockchain',            false, 8,  4, false),
+      ('9',  '2024-08-22 17:02:27.44715',  'TRENDY-THREAD_MS', null, null, 'A category dedicated to the network of physical devices that are connected and communicate over the internet.', 'Internet of Things',    false, 9,  4, false),
+      ('10', '2024-08-22 17:02:31.952916', 'TRENDY-THREAD_MS', null, null, 'A category that combines software development and IT operations, focusing on continuous integration and delivery.', 'DevOps',               false, 10, 2, false),
+      ('11', '2024-08-22 17:02:36.662944', 'TRENDY-THREAD_MS', null, null, 'A category that includes topics related to building and deploying models that enable computers to learn from data.', 'Machine Learning',    false, 11, 4, false);
 
 -- ========================================
 -- 3. POST TABLE DATA (42 records)
