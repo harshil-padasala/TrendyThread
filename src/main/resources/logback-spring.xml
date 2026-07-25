@@ -3,8 +3,7 @@
     <!-- Read an optional Spring property 'logging.file.name' (full path to the log file) or default to 'logs/trendy-thread.log' -->
     <springProperty scope="context" name="LOG_FILE" source="logging.file.name" defaultValue="logs/trendy-thread.log" />
 
-    <!-- Common pattern: timestamp level [requestId] logger - message -->
-    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{requestId}] %logger{36} - %msg%n" />
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [%X{requestId}] %logger{36} - %msg%n" />
 
     <!-- Console appender -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">

@@ -172,13 +172,13 @@ public class JwtUtil {
      * @throws io.jsonwebtoken.JwtException (or subclass) when token is invalid or malformed
      */
     public Claims extractAllClaims(String token) {
-        // parseClaimsJws validates the signature and if valid, returns the Jws<Claims>.
-        Jws<Claims> parsed = Jwts.parserBuilder()
-                .setSigningKey(signingKey)
+        // parseSignedClaims validates the signature and if valid, returns the Jws<Claims>.
+        Jws<Claims> parsed = Jwts.parser()
+                .verifyWith((javax.crypto.SecretKey) signingKey)
                 .build()
-                .parseClaimsJws(token);
+                .parseSignedClaims(token);
 
-        return parsed.getBody();
+        return parsed.getPayload();
     }
 
     /**
