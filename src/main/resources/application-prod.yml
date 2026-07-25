@@ -10,10 +10,11 @@ logging:
         springframework:
             security: DEBUG
   file:
-    path: logs/trendy-thread.log
-    name: trendy-thread.log
-    max-size: 10MB
-    max-history: 30
+    name: logs/trendy-thread.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 30
 
 spring:
 
