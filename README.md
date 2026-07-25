@@ -2,6 +2,13 @@
 
 A comprehensive RESTful API for a full-featured blog application built with Spring Boot, Spring Security, and JWT authentication.
 
+> [!NOTE]
+> **This is the Backend (Spring Boot) component of the TrendyThread Blog Application.**
+> The frontend is in a separate directory/repository. You can access it here:
+> - **Frontend (React)**: [🎨 TrendyThread Frontend (React)](../trendy-thread-react/README.md) (or on GitHub: [harshil-padasala/TrendyThread/trendy-thread-react](https://github.com/harshil-padasala/TrendyThread/tree/main/trendy-thread-react))
+
+---
+
 ## 🌟 Features
 
 ### Authentication & Authorization
@@ -331,11 +338,27 @@ Run tests with:
 
 ## 📝 Sample Data
 
-SQL files are provided for populating sample data:
-- `bloggers_rows.sql` - Sample users
-- `category_rows.sql` - Sample categories
-- `post_rows.sql` - Sample posts
-- `comment_rows.sql` - Sample comments
+SQL files are provided for populating sample data. They are located inside the Spring Boot app at [src/main/resources/sql/](file:///home/hpadasala/harshil/Java/trendy-thread-blog-application/trendy-thread/src/main/resources/sql/).
+
+### How to Use Sample Data
+
+To populate your database with sample data, you must run the SQL scripts in a specific order due to foreign key constraints. Make sure you run them **after** the database schema tables have been created by Hibernate/JPA (e.g., via `spring.jpa.hibernate.ddl-auto=update` or `create-drop`).
+
+Import the files into your database client (such as DBeaver, MySQL Workbench, etc.) or execute them via the MySQL CLI in the following order:
+
+1. [bloggers_rows.sql](file:///home/hpadasala/harshil/Java/trendy-thread-blog-application/trendy-thread/src/main/resources/sql/bloggers_rows.sql) - Sample users
+2. [category_rows.sql](file:///home/hpadasala/harshil/Java/trendy-thread-blog-application/trendy-thread/src/main/resources/sql/category_rows.sql) - Sample categories
+3. [post_rows.sql](file:///home/hpadasala/harshil/Java/trendy-thread-blog-application/trendy-thread/src/main/resources/sql/post_rows.sql) - Sample posts (depends on bloggers and categories)
+4. [comment_rows.sql](file:///home/hpadasala/harshil/Java/trendy-thread-blog-application/trendy-thread/src/main/resources/sql/comment_rows.sql) - Sample comments (depends on posts and bloggers)
+
+**Example command line import:**
+
+```bash
+mysql -u your_username -p trendy_thread_db < src/main/resources/sql/bloggers_rows.sql
+mysql -u your_username -p trendy_thread_db < src/main/resources/sql/category_rows.sql
+mysql -u your_username -p trendy_thread_db < src/main/resources/sql/post_rows.sql
+mysql -u your_username -p trendy_thread_db < src/main/resources/sql/comment_rows.sql
+```
 
 ## 🐛 Error Handling
 
