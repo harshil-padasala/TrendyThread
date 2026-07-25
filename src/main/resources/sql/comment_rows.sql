@@ -1,17 +1,12 @@
--- Updated to match Comment entity structure
--- Comment entity fields: id, content, post_id, blogger_id (plus BaseEntity fields)
--- Note: Comments now reference existing bloggers via blogger_id (not separate email/name)
--- Bloggers referenced: IDs 2-12 (cycling through them for variety)
-
-INSERT INTO "public"."comment" (
-    "id",
-    "created_at",
-    "created_by",
-    "updated_at",
-    "updated_by",
-    "content",
-    "post_id",
-    "blogger_id"
+INSERT INTO comment (
+    id,
+    created_at,
+    created_by,
+    updated_at,
+    updated_by,
+    content,
+    post_id,
+    blogger_id
 )
 VALUES
     ('1',   '2024-08-22 18:10:36.959377', 'TRENDY-THREAD_MS', null, null, 'Incredible insights! This post really broadened my understanding of the topic.',                            '1', '2'),
@@ -84,7 +79,7 @@ VALUES
     ('68',  '2024-08-22 18:26:02.111099', 'TRENDY-THREAD_MS', null, null, 'Great read! The article was engaging and provided valuable insights.',                                     '22', '3'),
     ('69',  '2024-08-22 18:26:17.060956', 'TRENDY-THREAD_MS', null, null, 'Great read! The article was engaging and provided valuable insights.',                                     '23', '4'),
     ('70',  '2024-08-22 18:26:22.692887', 'TRENDY-THREAD_MS', null, null, 'I enjoyed this post. It was well-written and easy to follow.',                                             '23', '5'),
-    ('71',  '2024-08-22 18:26:26.174806', 'TRENDY-THREAD_MS', null, null, 'Fantastic article! The content was both comprehensive and accessible.',                                    '23', '6'),
+    ('71',  '2024-08-22 18:26:17.060956', 'TRENDY-THREAD_MS', null, null, 'Great read! The article was engaging and provided valuable insights.',                                     '23', '6'),
     ('72',  '2024-08-22 18:26:34.518526', 'TRENDY-THREAD_MS', null, null, 'This was a very interesting post. I liked the depth of information provided.',                            '26', '7'),
     ('73',  '2024-08-22 18:26:38.618107', 'TRENDY-THREAD_MS', null, null, 'Well-written post! The clarity and depth were much appreciated.',                                         '26', '8'),
     ('74',  '2024-08-22 18:26:42.456228', 'TRENDY-THREAD_MS', null, null, 'Great content! The article was engaging and very informative.',                                            '26', '9'),
@@ -138,3 +133,5 @@ VALUES
     ('122', '2024-08-22 18:32:24.966715', 'TRENDY-THREAD_MS', null, null, 'The article was very informative and easy to understand. I appreciated the detailed explanations.',        '44', '2'),
     ('123', '2024-08-22 18:32:27.927837', 'TRENDY-THREAD_MS', null, null, 'This post was very engaging and the content was presented clearly. Great job!',                            '44', '3'),
     ('124', '2024-08-22 18:32:32.183553', 'TRENDY-THREAD_MS', null, null, 'The post provided a lot of useful information and was very well-organized. I enjoyed it.',                 '44', '4');
+
+ALTER TABLE comment ALTER COLUMN id RESTART WITH 125;

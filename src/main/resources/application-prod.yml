@@ -1,0 +1,51 @@
+server:
+  port: 8079
+
+# Logging configuration: root level + package-specific overrides for controllers
+logging:
+  level:
+    root: INFO
+    com.trendythread.app: DEBUG
+    org:
+        springframework:
+            security: DEBUG
+  file:
+    path: logs/trendy-thread.log
+    name: trendy-thread.log
+    max-size: 10MB
+    max-history: 30
+
+spring:
+
+  application:
+    name: TrendyThread
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://ep-silent-pond-ai7bamlc.c-4.us-east-1.aws.neon.tech:5432/neondb?sslmode=require&channelBinding=require}
+    username: ${DB_USERNAME:neondb_owner}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  sql:
+    init:
+      mode: never
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: harshilpadsala99@gmail.com
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true

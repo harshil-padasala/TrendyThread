@@ -1,14 +1,14 @@
-INSERT INTO "public"."post" (
-    "id",
-    "created_at",
-    "created_by",
-    "updated_at",
-    "updated_by",
-    "content",
-    "description",
-    "title",
-    "category_id",
-    "blogger_id"
+INSERT INTO post (
+    id,
+    created_at,
+    created_by,
+    updated_at,
+    updated_by,
+    content,
+    description,
+    title,
+    category_id,
+    blogger_id
 )
 VALUES
     ('1',  '2024-08-22 17:05:22.56145',    'TRENDY-THREAD_MS', '2024-08-22 17:05:22.968952', 'TRENDY-THREAD_MS', 'Quantum computing leverages the principles of quantum mechanics to process information in fundamentally new ways, offering potential breakthroughs in solving complex problems.',               'An introduction to the principles and applications of quantum computing.',                          'Exploring Quantum Computing Fundamentals',      '1',  '2'),
@@ -38,7 +38,7 @@ VALUES
     ('27', '2024-08-22 17:59:51.296484',   'TRENDY-THREAD_MS', '2024-08-22 18:00:04.28615',  'TRENDY-THREAD_MS', 'Web development frameworks evolve rapidly with new innovations. This post highlights some of the latest and most innovative frameworks that are changing the landscape of web development.',    'A look at new and innovative frameworks in web development.',                                       'Innovative Web Development Frameworks',         '4',  '5'),
     ('28', '2024-08-22 18:00:24.782755',   'TRENDY-THREAD_MS', null,                          null,               'Defending against cybersecurity threats requires a multi-layered approach. This post discusses best practices for enhancing cybersecurity defenses, including threat detection, response strategies, and risk management.', 'Effective strategies for defending against cybersecurity threats.',                     'Best Practices for Cybersecurity Defense',      '5',  '6'),
     ('29', '2024-08-22 18:00:41.179938',   'TRENDY-THREAD_MS', '2024-08-22 18:00:41.488643', 'TRENDY-THREAD_MS', 'Mobile development is rapidly evolving with new technologies and platforms. This post examines the trends and innovations in mobile development and their impact on the tech industry.',        'How mobile development is evolving and its impact on technology.',                                  'The Growing Role of Mobile Development',         '6',  '7'),
-    ('30', '2024-08-22 18:01:04.117196',   'TRENDY-THREAD_MS', null,                          null,               'Data science can provide valuable insights for business decision-making. This post explores how data analysis, machine learning, and visualization can be used to drive business strategy and performance.', 'Using data science techniques to gain valuable business insights.',                     'Leveraging Data Science for Business Insights', '7',  '8'),
+    ('30', '2024-08-22 18:01:04.117196',   'TRENDY-THREAD_MS', null,                          null,               'Data science can provide valuable insights for business decision-making. This post explores how data analysis, machine learning, and visualization can be applied to improve business strategies and outcomes.', 'Using data science techniques to gain valuable business insights.',                     'Leveraging Data Science for Business Insights', '7',  '8'),
     ('31', '2024-08-22 18:01:24.187729',   'TRENDY-THREAD_MS', null,                          null,               'Blockchain technology is not just for cryptocurrencies. This post explores various applications of blockchain, including supply chain management, voting systems, and more.',                     'Understanding the various applications of blockchain technology.',                                  'Blockchain and its Applications',               '8',  '9'),
     ('32', '2024-08-22 18:01:44.029889',   'TRENDY-THREAD_MS', null,                          null,               'The Internet of Things (IoT) connects devices and enables them to communicate and interact. This post provides an introduction to IoT concepts and explores various applications and benefits of connected devices.', 'Basic concepts and applications of the Internet of Things (IoT).',                    'Introduction to Internet of Things (IoT)',       '9',  '10'),
     ('33', '2024-08-22 18:02:07.709098',   'TRENDY-THREAD_MS', null,                          null,               'Machine learning is a subset of artificial intelligence that focuses on building systems that can learn from data. This post introduces the fundamentals of machine learning and explores its various applications.', 'An introduction to the basics of machine learning and its applications.',               'Getting Started with Machine Learning',          '11', '11'),
@@ -52,3 +52,5 @@ VALUES
     ('42', '2024-08-22 18:06:01.994276',   'TRENDY-THREAD_MS', null,                          null,               'Blockchain technology is transforming financial services by offering new ways to secure transactions, manage assets, and streamline operations. This post discusses innovative uses of blockchain in the financial sector.', 'Innovative uses of blockchain technology in financial services.',                       'Blockchain Innovations in Financial Services',  '8',  '9'),
     ('43', '2024-08-22 18:06:23.702494',   'TRENDY-THREAD_MS', null,                          null,               'The Internet of Things (IoT) is playing a crucial role in the development of smart cities by improving infrastructure, services, and quality of life. This post explores various IoT applications in smart cities and their benefits.', 'How IoT technology is being used in the development of smart cities.',                 'IoT Applications in Smart Cities',              '9',  '10'),
     ('44', '2024-08-22 18:06:43.46689',    'TRENDY-THREAD_MS', null,                          null,               'Machine learning is increasingly being used in healthcare to improve diagnostics, personalize treatments, and streamline operations. This post explores various applications of machine learning in the healthcare sector.', 'Exploring the use of machine learning in the healthcare industry.',                     'Machine Learning Applications in Healthcare',   '11', '11');
+
+ALTER TABLE post ALTER COLUMN id RESTART WITH 45;

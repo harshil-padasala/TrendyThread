@@ -1,0 +1,64 @@
+server:
+  port: 8079
+
+# Logging configuration: root level + package-specific overrides for controllers
+logging:
+  level:
+    root: INFO
+    com.trendythread.app: DEBUG
+    org:
+      springframework:
+        security: DEBUG
+  file:
+    path: logs/trendy-thread.log
+    name: trendy-thread.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 30
+
+spring:
+
+  application:
+    name: TrendyThread
+
+  datasource:
+    url: jdbc:h2:mem:trendythread;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        id:
+          new_generator_mappings: true
+        jdbc:
+          batch_size: 10
+    defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: always
+      data-locations:
+        - classpath:sql/bloggers_rows.sql
+        - classpath:sql/category_rows.sql
+        - classpath:sql/post_rows.sql
+        - classpath:sql/comment_rows.sql
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: harshilpadsala99@gmail.com
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
