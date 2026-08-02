@@ -5,7 +5,7 @@ A comprehensive RESTful API for a full-featured blog application built with Spri
 > [!NOTE]
 > **This is the Backend (Spring Boot) component of the TrendyThread Blog Application.**
 > The frontend is in a separate directory/repository. You can access it here:
-> - **Frontend (React)**: [🎨 TrendyThread Frontend (React)](../trendy-thread-react/README.md) (or on GitHub: [harshil-padasala/TrendyThread/trendy-thread-react](https://github.com/harshil-padasala/TrendyThread/tree/main/trendy-thread-react))
+> - **Frontend (React)**: [🎨 TrendyThread Frontend (React)] (GitHub: [harshil-padasala/TrendyThread-UI](https://github.com/harshil-padasala/TrendyThread-UI))
 
 ---
 
