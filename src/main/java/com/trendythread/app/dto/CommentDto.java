@@ -8,6 +8,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Schema(
         name = "Comment",
         description = "Schema to hold Comment Details"
@@ -38,4 +41,15 @@ public class CommentDto {
     @NotEmpty
     @Size(min = 10, message = "Comment body must be minimum 10 characters")
     private String content;
+
+    @Schema(
+            description = "ID of the comment this is a reply to. Omit/null for a top-level comment.",
+            example = "3"
+    )
+    private Integer parentId;
+
+    @Schema(
+            description = "Nested replies to this comment, in reply order. Populated only in read responses."
+    )
+    private List<CommentDto> replies = new ArrayList<>();
 }

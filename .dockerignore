@@ -1,0 +1,13 @@
+build
+.gradle
+.idea
+.git
+.gitignore
+Dockerfile
+.dockerignore
+logs
+*.log
+Readmes
+README.md
+# Pins this machine's absolute JDK path; would break the build container
+gradle.properties

@@ -48,11 +48,14 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         // Auth endpoints - public
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/signup").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/signup", "/api/v1/auth/refresh").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/logout").authenticated()
 
                         // Category READ endpoints - public (fixed: category not categories)
                         .requestMatchers(HttpMethod.GET, "/api/v1/category/**").permitAll()
+
+                        // Tag READ endpoints - public
+                        .requestMatchers(HttpMethod.GET, "/api/v1/tags/**").permitAll()
 
                         // Admin category management - ADMIN role required
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")

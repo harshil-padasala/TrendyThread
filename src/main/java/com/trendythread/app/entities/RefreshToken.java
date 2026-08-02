@@ -25,7 +25,9 @@ public class RefreshToken {
     private Long id;
 
     /**
-     * The actual refresh token string (should be hashed in production).
+     * SHA-256 hex hash of the raw refresh token string. The raw token is only
+     * ever handed to the client; only its hash is persisted here so a DB leak
+     * alone can't be replayed as a valid refresh token.
      */
     @Column(nullable = false, unique = true, length = 500)
     private String token;

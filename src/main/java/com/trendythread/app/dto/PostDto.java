@@ -11,6 +11,7 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Schema(
@@ -81,5 +82,11 @@ public class PostDto {
             implementation = CommentDto.class
     )
     private Set<CommentDto> comments = new HashSet<>();
+
+    @Schema(
+            description = "Free-form tags for this post, set by the author. Case-insensitive; new tags are created automatically.",
+            example = "[\"cloud\", \"aws\", \"tutorial\"]"
+    )
+    private Set<String> tags = new LinkedHashSet<>();
 }
 

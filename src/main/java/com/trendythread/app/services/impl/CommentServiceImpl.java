@@ -14,6 +14,7 @@ import com.trendythread.app.repositories.BloggersRepository;
 import com.trendythread.app.repositories.CommentRepository;
 import com.trendythread.app.repositories.PostRepository;
 import com.trendythread.app.services.CommentService;
+import com.trendythread.app.services.NotificationService;
 import com.trendythread.app.util.RedisCacheEvictionHelper;
 import com.trendythread.app.util.RedisCacheSupport;
 import org.modelmapper.ModelMapper;
@@ -25,7 +26,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -47,6 +51,8 @@ public class CommentServiceImpl implements CommentService {
 
     private final ObjectMapper objectMapper;
 
+    private final NotificationService notificationService;
+
     @Autowired
     public CommentServiceImpl(CommentRepository commentRepository,
                               PostRepository postRepository,
@@ -54,7 +60,8 @@ public class CommentServiceImpl implements CommentService {
                               ModelMapper modelMapper,
                               RedisCacheSupport redisCacheSupport,
                               RedisCacheEvictionHelper redisCacheEvictionHelper,
-                              ObjectMapper objectMapper) {
+                              ObjectMapper objectMapper,
+                              NotificationService notificationService) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
         this.bloggersRepository = bloggersRepository;
@@ -62,6 +69,7 @@ public class CommentServiceImpl implements CommentService {
         this.redisCacheSupport = redisCacheSupport;
         this.redisCacheEvictionHelper = redisCacheEvictionHelper;
         this.objectMapper = objectMapper;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -78,13 +86,19 @@ public class CommentServiceImpl implements CommentService {
         comment.setPost(post);
         comment.setBlogger(blogger);
 
-        Comment savedComment = this.commentRepository.save(comment);
-        CommentDto result = this.modelMapper.map(savedComment, CommentDto.class);
-        // Set name and email from blogger entity
-        if (savedComment.getBlogger() != null) {
-            result.setName(savedComment.getBlogger().getFirstName() + " " + savedComment.getBlogger().getLastName());
-            result.setEmail(savedComment.getBlogger().getEmail());
+        if (commentDto.getParentId() != null) {
+            Comment parent = commentRepository.findById(commentDto.getParentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Comment", "id", commentDto.getParentId()));
+            if (!parent.getPost().getId().equals(postId)) {
+                throw new BlogAPIException(HttpStatus.BAD_REQUEST, "Parent comment does not belong to this post");
+            }
+            comment.setParentComment(parent);
         }
+
+        Comment savedComment = this.commentRepository.save(comment);
+        CommentDto result = toCommentDto(savedComment);
+
+        notifyAboutComment(savedComment, post, blogger);
 
         scheduleCommentCacheRefreshAfterCommit(postId, Set.of(savedComment.getId()));
         scheduleAfterCommit(() -> {
@@ -109,15 +123,41 @@ public class CommentServiceImpl implements CommentService {
 
         List<Comment> comments = commentRepository.findByPostId(postId);
 
-        List<CommentDto> result = comments.stream().map(comment -> {
+        List<CommentDto> flat = comments.stream().map(comment -> {
             return toCommentDto(comment);
         }).collect(Collectors.toList());
 
+        List<CommentDto> result = buildCommentTree(flat);
+
         redisCacheSupport.set(cacheKey, result, IRedisTtlConstant.TTL_QUERY);
 
-        log.debug("findByPostId - found {} comments for postId={}", result.size(), postId);
+        log.debug("findByPostId - found {} top-level comments (of {} total) for postId={}", result.size(), flat.size(), postId);
         return result;
 
+    }
+
+    /**
+     * Assembles a flat list of comments (each carrying its parentId) into a
+     * tree of top-level comments with nested replies, ordered by comment id
+     * (i.e. creation order) at every level.
+     */
+    private List<CommentDto> buildCommentTree(List<CommentDto> flatComments) {
+        Map<Integer, CommentDto> byId = new LinkedHashMap<>();
+        for (CommentDto comment : flatComments) {
+            comment.setReplies(new ArrayList<>());
+            byId.put(comment.getId(), comment);
+        }
+
+        List<CommentDto> topLevel = new ArrayList<>();
+        for (CommentDto comment : flatComments) {
+            if (comment.getParentId() != null && byId.containsKey(comment.getParentId())) {
+                byId.get(comment.getParentId()).getReplies().add(comment);
+            } else {
+                topLevel.add(comment);
+            }
+        }
+
+        return topLevel;
     }
 
     @Override
@@ -208,12 +248,41 @@ public class CommentServiceImpl implements CommentService {
 
     }
 
+    /**
+     * A reply notifies the parent comment's author; a top-level comment
+     * notifies the post's author. Never notifies someone about their own action.
+     */
+    private void notifyAboutComment(Comment savedComment, Post post, Blogger commenter) {
+        if (savedComment.getParentComment() != null) {
+            Blogger parentAuthor = savedComment.getParentComment().getBlogger();
+            if (parentAuthor != null && parentAuthor.getId() != commenter.getId()) {
+                notificationService.createNotification(
+                        parentAuthor.getId(),
+                        "REPLY",
+                        commenter.getUserName() + " replied to your comment",
+                        post.getId()
+                );
+            }
+        } else {
+            Blogger postAuthor = post.getBlogger();
+            if (postAuthor != null && postAuthor.getId() != commenter.getId()) {
+                notificationService.createNotification(
+                        postAuthor.getId(),
+                        "COMMENT",
+                        commenter.getUserName() + " commented on your post \"" + post.getTitle() + "\"",
+                        post.getId()
+                );
+            }
+        }
+    }
+
     private CommentDto toCommentDto(Comment comment) {
         CommentDto dto = this.modelMapper.map(comment, CommentDto.class);
         if (comment.getBlogger() != null) {
             dto.setName(comment.getBlogger().getFirstName() + " " + comment.getBlogger().getLastName());
             dto.setEmail(comment.getBlogger().getEmail());
         }
+        dto.setParentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null);
         return dto;
     }
 

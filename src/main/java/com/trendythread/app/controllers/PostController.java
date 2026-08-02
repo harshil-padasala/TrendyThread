@@ -3,6 +3,8 @@ package com.trendythread.app.controllers;
 import com.trendythread.app.constants.AppConstants;
 import com.trendythread.app.payloads.ApiResponse;
 import com.trendythread.app.dto.PostDto;
+import com.trendythread.app.dto.PostViewCountDto;
+import com.trendythread.app.dto.TrendingPostDto;
 import com.trendythread.app.payloads.PostResponse;
 import com.trendythread.app.services.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
 import java.security.Principal;
+import java.util.List;
 
 @Tag(
         name = "CRUD REST APIs for POST in TrendyThread",
@@ -94,6 +97,60 @@ public class PostController {
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 
+    // GET Mapping - Get Personalized Feed
+    @Operation(
+            summary = "FETCH Personalized Feed REST API",
+            description = "REST API to fetch posts from bloggers the authenticated user follows"
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "HTTP Status OK"
+    )
+    @GetMapping("/feed")
+    public ResponseEntity<PostResponse> getFeed(
+            @RequestParam(value = "pageNumber", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIR, required = false) boolean isAsc,
+            Principal principal) {
+        log.info("GET /api/v1/posts/feed - getFeed request received: user={}", principal.getName());
+        PostResponse feed = this.postService.getFeed(principal.getName(), pageNumber, pageSize, sortBy, isAsc);
+        return new ResponseEntity<>(feed, HttpStatus.OK);
+    }
+
+    // GET Mapping - Get Trending Posts
+    @Operation(
+            summary = "FETCH Trending Posts REST API",
+            description = "REST API to fetch the most-viewed posts, ordered by view count descending"
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "HTTP Status OK"
+    )
+    @GetMapping("/trending")
+    public ResponseEntity<List<TrendingPostDto>> getTrendingPosts(
+            @RequestParam(value = "limit", defaultValue = "10", required = false) Integer limit) {
+        log.info("GET /api/v1/posts/trending - getTrendingPosts request received: limit={}", limit);
+        List<TrendingPostDto> trending = this.postService.getTrendingPosts(limit);
+        log.debug("GET /api/v1/posts/trending - returning {} trending posts", trending.size());
+        return new ResponseEntity<>(trending, HttpStatus.OK);
+    }
+
+    // GET Mapping - Get view count for a post
+    @Operation(
+            summary = "FETCH Post View Count REST API",
+            description = "REST API to fetch the total view count for a post"
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "HTTP Status OK"
+    )
+    @GetMapping("/{postId}/views")
+    public ResponseEntity<PostViewCountDto> getViewCount(@PathVariable Integer postId) {
+        log.info("GET /api/v1/posts/{}/views - getViewCount request received", postId);
+        return new ResponseEntity<>(this.postService.getViewCount(postId), HttpStatus.OK);
+    }
+
     // GET Mapping - Get Latest Posts
     @Operation(
             summary = "FETCH Latest Posts REST API",
@@ -130,6 +187,27 @@ public class PostController {
         log.info("GET /api/v1/posts/category/{} - fetchByCategoryId request received: pageNumber={}, pageSize={}, sortBy={}, isAsc={}", categoryId, pageNumber, pageSize, sortBy, isAsc);
         PostResponse postResponse = this.postService.findPostsByCategoryId(categoryId, pageNumber, pageSize, sortBy, isAsc);
         log.debug("GET /api/v1/posts/category/{} - fetched posts response: {}", categoryId, postResponse);
+        return new ResponseEntity<>(postResponse, HttpStatus.OK);
+    }
+
+    // GET Mapping - Get by Tag
+    @Operation(
+            summary = "FETCH Post REST API",
+            description = "REST API to fetch all Posts tagged with a given tag name"
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "HTTP Status OK"
+    )
+    @GetMapping("/tag/{tagName}")
+    public ResponseEntity<PostResponse> fetchByTag(@PathVariable String tagName,
+                                                    @RequestParam(value = "pageNumber", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) Integer pageNumber,
+                                                    @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) Integer pageSize,
+                                                    @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+                                                    @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIR, required = false) boolean isAsc) {
+        log.info("GET /api/v1/posts/tag/{} - fetchByTag request received: pageNumber={}, pageSize={}, sortBy={}, isAsc={}", tagName, pageNumber, pageSize, sortBy, isAsc);
+        PostResponse postResponse = this.postService.findPostsByTag(tagName, pageNumber, pageSize, sortBy, isAsc);
+        log.debug("GET /api/v1/posts/tag/{} - fetched posts response: {}", tagName, postResponse);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }
 

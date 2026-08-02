@@ -6,14 +6,20 @@ import com.trendythread.app.constants.IRedisTtlConstant;
 import com.trendythread.app.entities.Blogger;
 import com.trendythread.app.entities.Category;
 import com.trendythread.app.entities.Post;
+import com.trendythread.app.entities.Tag;
 import com.trendythread.app.exceptions.ResourceNotFoundException;
 import com.trendythread.app.dto.PostDto;
+import com.trendythread.app.dto.PostViewCountDto;
+import com.trendythread.app.dto.TrendingPostDto;
 import com.trendythread.app.payloads.PostResponse;
 import com.trendythread.app.repositories.CategoryRepository;
 import com.trendythread.app.repositories.PostRepository;
 import com.trendythread.app.repositories.BloggersRepository;
 import com.trendythread.app.services.CategoryService;
+import com.trendythread.app.services.FollowService;
 import com.trendythread.app.services.PostService;
+import com.trendythread.app.services.PostViewService;
+import com.trendythread.app.services.TagService;
 import com.trendythread.app.util.RedisCacheEvictionHelper;
 import com.trendythread.app.util.RedisCacheSupport;
 import org.modelmapper.ModelMapper;
@@ -28,7 +34,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -44,6 +54,12 @@ public class PostServiceImpl implements PostService {
 
     private final CategoryService categoryService;
 
+    private final TagService tagService;
+
+    private final PostViewService postViewService;
+
+    private final FollowService followService;
+
     private final RedisCacheSupport redisCacheSupport;
 
     private final RedisCacheEvictionHelper redisCacheEvictionHelper;
@@ -56,6 +72,9 @@ public class PostServiceImpl implements PostService {
                            BloggersRepository bloggersRepository,
                            CategoryRepository categoryRepository,
                            CategoryService categoryService,
+                           TagService tagService,
+                           PostViewService postViewService,
+                           FollowService followService,
                            RedisCacheSupport redisCacheSupport,
                            RedisCacheEvictionHelper redisCacheEvictionHelper,
                            ObjectMapper objectMapper) {
@@ -64,6 +83,9 @@ public class PostServiceImpl implements PostService {
         this.bloggersRepository = bloggersRepository;
         this.categoryRepository = categoryRepository;
         this.categoryService = categoryService;
+        this.tagService = tagService;
+        this.postViewService = postViewService;
+        this.followService = followService;
         this.redisCacheSupport = redisCacheSupport;
         this.redisCacheEvictionHelper = redisCacheEvictionHelper;
         this.objectMapper = objectMapper;
@@ -72,6 +94,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto findByPostId(Integer PostId) {
         log.info("findByPostId - request received: id={}", PostId);
+
+        postViewService.recordView(PostId);
 
         String cacheKey = IRedisConstant.REDIS_POST_ID.concat(String.valueOf(PostId));
         Object cachedPost = redisCacheSupport.get(cacheKey);
@@ -87,6 +111,37 @@ public class PostServiceImpl implements PostService {
         redisCacheSupport.set(cacheKey, dto, IRedisTtlConstant.TTL_ENTITY);
         log.debug("findByPostId - fetched post: {}", dto);
         return dto;
+    }
+
+    @Override
+    public PostViewCountDto getViewCount(Integer postId) {
+        log.info("getViewCount - request received: postId={}", postId);
+        return new PostViewCountDto(postViewService.getViewCount(postId));
+    }
+
+    @Override
+    public List<TrendingPostDto> getTrendingPosts(int limit) {
+        log.info("getTrendingPosts - request received: limit={}", limit);
+
+        List<Integer> trendingIds = postViewService.getTrendingPostIds(limit);
+        if (trendingIds.isEmpty()) {
+            return List.of();
+        }
+
+        Map<Integer, Post> postsById = postRepository.findAllById(trendingIds).stream()
+                .collect(Collectors.toMap(Post::getId, p -> p));
+
+        List<TrendingPostDto> result = new ArrayList<>();
+        for (Integer postId : trendingIds) {
+            Post post = postsById.get(postId);
+            if (post == null) {
+                continue; // post was deleted but its view-count entry is still in Redis
+            }
+            result.add(new TrendingPostDto(postToPostDto(post), postViewService.getViewCount(postId)));
+        }
+
+        log.debug("getTrendingPosts - returning {} trending posts", result.size());
+        return result;
     }
 
     @Override
@@ -161,6 +216,44 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public PostResponse findPostsByTag(String tagName, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc) {
+        log.info("findPostsByTag - request received: tagName={}, pageNumber={}, pageSize={}, sortBy={}, isAsc={}", tagName, pageNumber, pageSize, sortBy, isAsc);
+
+        Pageable pageable = isAsc ? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()) :
+                PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
+
+        Page<Post> posts = this.postRepository.findByTags_NameIgnoreCase(tagName.trim().toLowerCase(), pageable);
+
+        PostResponse response = this.generatePostAsPageResponse(posts);
+        log.debug("findPostsByTag - found {} posts for tagName={}", response.getTotalElements(), tagName);
+        return response;
+    }
+
+    @Override
+    public PostResponse getFeed(String authenticatedUserEmail, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc) {
+        log.info("getFeed - request received: user={}, pageNumber={}, pageSize={}, sortBy={}, isAsc={}", authenticatedUserEmail, pageNumber, pageSize, sortBy, isAsc);
+
+        List<Integer> followingIds = followService.getFollowingIds(authenticatedUserEmail);
+        if (followingIds.isEmpty()) {
+            PostResponse empty = new PostResponse();
+            empty.setContent(List.of());
+            empty.setPageNumber(pageNumber);
+            empty.setPageSize(pageSize);
+            empty.setLastPage(true);
+            return empty;
+        }
+
+        Pageable pageable = isAsc ? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()) :
+                PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
+
+        Page<Post> posts = this.postRepository.findByBlogger_IdIn(followingIds, pageable);
+
+        PostResponse response = this.generatePostAsPageResponse(posts);
+        log.debug("getFeed - found {} posts for user={}", response.getTotalElements(), authenticatedUserEmail);
+        return response;
+    }
+
+    @Override
     public PostResponse findPostsByBloggerId(String authenticatedUserEmail, Integer pageNumber, Integer pageSize, String sortBy, boolean isAsc) {
         log.info("findPostsByBloggerId - request received: bloggerID={}, pageNumber={}, pageSize={}, sortBy={}, isAsc={}", authenticatedUserEmail, pageNumber, pageSize, sortBy, isAsc);
 
@@ -228,6 +321,7 @@ public class PostServiceImpl implements PostService {
         Post post = postDtoToPost(postDto);
         post.setCategory(category);
         post.setBlogger(blogger);
+        post.setTags(tagService.resolveOrCreateTags(postDto.getTags()));
 
         Post newPost = this.postRepository.save(post);
 
@@ -260,6 +354,9 @@ public class PostServiceImpl implements PostService {
         post.setContent(postDto.getContent());
         post.setDescription(postDto.getDescription());
         post.setTitle(postDto.getTitle());
+        if (postDto.getTags() != null) {
+            post.setTags(tagService.resolveOrCreateTags(postDto.getTags()));
+        }
 
         Post savedPost = this.postRepository.save(post);
         PostDto dto = this.postToPostDto(savedPost);
@@ -303,7 +400,7 @@ public class PostServiceImpl implements PostService {
 
         Pageable pageable = isAsc ? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()) :
                 PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending());
-        Page<Post> postList = this.postRepository.findByTitleContaining(keyword, pageable);
+        Page<Post> postList = this.postRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(keyword, keyword, pageable);
 
         PostResponse response = this.generatePostAsPageResponse(postList);
         redisCacheSupport.set(cacheKey, response, IRedisTtlConstant.TTL_QUERY);
@@ -371,10 +468,17 @@ public class PostServiceImpl implements PostService {
 
 
     private PostDto postToPostDto(Post post) {
-        return this.modelMapper.map(post, PostDto.class);
+        PostDto dto = this.modelMapper.map(post, PostDto.class);
+        // ModelMapper can't auto-project Set<Tag> -> Set<String>; set explicitly.
+        dto.setTags(post.getTags() == null ? Set.of() :
+                post.getTags().stream().map(Tag::getName).collect(Collectors.toCollection(java.util.LinkedHashSet::new)));
+        return dto;
     }
 
     private Post postDtoToPost(PostDto postDto) {
-        return this.modelMapper.map(postDto, Post.class);
+        Post post = this.modelMapper.map(postDto, Post.class);
+        // tags are resolved/assigned separately by the caller (create/update) via TagService
+        post.setTags(new java.util.HashSet<>());
+        return post;
     }
 }

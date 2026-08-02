@@ -73,15 +73,23 @@ public class JwtUtil {
      *   secret: ${JWT_SECRET:change_me_and_store_safely}
      *   expiration-ms: 36000000
      */
-    @Value("${jwt.secret:WnI4QExtMiNReDkhdlQ2JE5jNF5IcDcmS3MzKkR3MSVGeTVASnU4IVJiMiNYZTYkTWc5XlB0NCZWYTcqTGMw}")
+    @Value("${jwt.secret}")
     private String secret;
 
     /**
      * Token validity window in milliseconds. Keep this as small as practical.
      * For access tokens, consider values from a few minutes to a few hours.
      */
-    @Value("${jwt.expiration-ms:36000000}")
-    private long validityInMs; // default 10 hours
+    @Value("${jwt.access-token-expiration-ms:3600000}")
+    private long validityInMs; // default 1 hour
+
+    /**
+     * Refresh token validity window in milliseconds. Longer-lived than the
+     * access token; used both for signing the refresh JWT and for the
+     * persisted {@code RefreshToken.expiresAt} value (see getRefreshValidityMs()).
+     */
+    @Value("${jwt.refresh-token-expiration-ms:604800000}")
+    private long refreshValidityInMs; // default 7 days
 
     // Signing key derived from the configured secret. Initialized on startup.
     private Key signingKey;
@@ -95,10 +103,11 @@ public class JwtUtil {
         // originally generated as text; however, for full entropy, prefer Base64.
         try {
             // Try interpreting secret as Base64 first. If it's not valid Base64,
-            // this will throw an IllegalArgumentException and fallback will be used.
+            // jjwt's decoder throws io.jsonwebtoken.io.DecodingException (a
+            // RuntimeException, not IllegalArgumentException) and fallback is used.
             byte[] keyBytes = Decoders.BASE64.decode(secret);
             signingKey = Keys.hmacShaKeyFor(keyBytes);
-        } catch (IllegalArgumentException ex) {
+        } catch (RuntimeException ex) {
             // Fallback: use UTF-8 bytes of the configured secret string.
             byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
             signingKey = Keys.hmacShaKeyFor(keyBytes);
@@ -264,8 +273,7 @@ public class JwtUtil {
      */
     public String generateRefreshToken(String username) {
         Date now = new Date();
-        // Refresh token valid for 7 days (adjust as needed)
-        Date expiry = new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000));
+        Date expiry = new Date(now.getTime() + refreshValidityInMs);
 
         return Jwts.builder()
                 .setSubject(username)
@@ -273,6 +281,17 @@ public class JwtUtil {
                 .setExpiration(expiry)
                 .signWith(signingKey, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    /**
+     * Refresh token validity window in milliseconds, so callers persisting a
+     * {@code RefreshToken} row can derive its {@code expiresAt} from the same
+     * value used to sign the JWT (avoids the two drifting out of sync).
+     *
+     * @return refresh token validity in milliseconds
+     */
+    public long getRefreshValidityMs() {
+        return refreshValidityInMs;
     }
 
 }

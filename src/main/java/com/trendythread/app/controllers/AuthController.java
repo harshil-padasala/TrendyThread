@@ -2,11 +2,12 @@ package com.trendythread.app.controllers;
 
 import com.trendythread.app.dto.BloggerDto;
 import com.trendythread.app.payloads.LoginRequest;
-import com.trendythread.app.entities.RefreshToken;
 import com.trendythread.app.payloads.JwtTokenResponse;
-import com.trendythread.app.repositories.RefreshTokenRepository;
+import com.trendythread.app.payloads.RefreshTokenRequest;
 import com.trendythread.app.services.BloggersService;
 import com.trendythread.app.services.EmailService;
+import com.trendythread.app.services.LoginAttemptService;
+import com.trendythread.app.services.RefreshTokenService;
 import com.trendythread.app.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,7 +26,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +42,7 @@ public class AuthController {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private RefreshTokenRepository refreshTokenRepository;
+    private RefreshTokenService refreshTokenService;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -52,6 +52,9 @@ public class AuthController {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private LoginAttemptService loginAttemptService;
 
     /**
      * User registration/signup endpoint.
@@ -224,6 +227,13 @@ public class AuthController {
             }
             log.debug("Login request received for email: {}", email);
 
+            // ===== STEP 1.5: Rate limit check =====
+            if (loginAttemptService.isBlocked(email)) {
+                log.warn("Login blocked for email: {} - too many failed attempts", email);
+                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                        .body(Map.of("error", "Too many failed login attempts. Please try again later."));
+            }
+
             // ===== STEP 2: Authenticate using Spring Security =====
             // This delegates to your configured AuthenticationProvider (e.g., DaoAuthenticationProvider)
             // which validates password against the stored user in database.
@@ -233,9 +243,11 @@ public class AuthController {
                         new UsernamePasswordAuthenticationToken(email, password)
                 );
             } catch (BadCredentialsException e) {
+                loginAttemptService.recordFailure(email);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("error", "Invalid email or password"));
             }
+            loginAttemptService.recordSuccess(email);
             log.debug("Authentication successful for email: {}", email);
 
             // ===== STEP 3: Fetch user from database =====
@@ -265,22 +277,9 @@ public class AuthController {
             JwtTokenResponse tokenResponse = jwtUtil.generateToken(email, extraClaims);
             log.debug("Generated access token for email: {}", email);
 
-            // ===== STEP 6: Generate refresh token (long-lived) =====
-            String refreshTokenString = jwtUtil.generateRefreshToken(email);
-            log.debug("Generated refresh token for email: {}", email);
-
-            // ===== STEP 7: Save refresh token to database =====
-            // Refresh tokens are stored server-side so they can be invalidated on logout
-            // Token expiry: 7 days from now
-            RefreshToken refreshTokenEntity = RefreshToken.builder()
-                    .token(refreshTokenString)
-                    .username(email)
-                    .createdAt(Instant.now())
-                    .expiresAt(Instant.now().plusSeconds(7 * 24 * 60 * 60)) // 7 days
-                    .build();
-
-            refreshTokenRepository.save(refreshTokenEntity);
-            log.debug("Saved refresh token to database for email: {}", email);
+            // ===== STEP 6: Generate + persist refresh token (long-lived) =====
+            String refreshTokenString = refreshTokenService.issue(email);
+            log.debug("Generated and saved refresh token for email: {}", email);
 
             // ===== STEP 8: Set user details and refresh token in response and return =====
             tokenResponse.setRefreshToken(refreshTokenString);
@@ -343,7 +342,7 @@ public class AuthController {
             log.debug("Logout request received for user: {}", username);
 
             // Delete all refresh tokens for this user
-            refreshTokenRepository.deleteByUsername(username);
+            refreshTokenService.revokeAllForUser(username);
             log.debug("Deleted refresh tokens for user: {}", username);
 
             Map<String, String> response = new HashMap<>();
@@ -361,6 +360,53 @@ public class AuthController {
         }
     }
 
+
+    /**
+     * Refresh endpoint: exchange a valid, unexpired refresh token for a new
+     * access token + refresh token pair. The submitted refresh token is
+     * rotated (invalidated) as part of this call, so it can only be used once.
+     *
+     * @param request contains the refresh token issued at login/last refresh
+     * @return JwtTokenResponse with a new access token and refresh token
+     */
+    @Operation(
+            summary = "Refresh Access Token",
+            description = "Exchanges a valid refresh token for a new access token and refresh token. The submitted refresh token is invalidated (single use).",
+            tags = "Authentication"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Token refreshed successfully"
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "Missing refresh token"
+    )
+    @ApiResponse(
+            responseCode = "401",
+            description = "Invalid or expired refresh token"
+    )
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody RefreshTokenRequest request) {
+        try {
+            if (request == null || request.getRefreshToken() == null || request.getRefreshToken().isBlank()) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "refreshToken is required"));
+            }
+
+            JwtTokenResponse response = refreshTokenService.refresh(request.getRefreshToken());
+            log.debug("Refreshed tokens for user: {}", response.getUsername());
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Token refresh failed", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Token refresh failed"));
+        }
+    }
 
     /**
      * Extract username from Authorization header.

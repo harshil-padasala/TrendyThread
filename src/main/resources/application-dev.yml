@@ -1,6 +1,9 @@
 server:
   port: 8079
 
+jwt:
+  secret: ${JWT_SECRET:dev-only-local-secret-do-not-use-in-prod-change-me-123456}
+
 # Logging configuration: root level + package-specific overrides for controllers
 logging:
   level:
